@@ -214,7 +214,7 @@
                 <div class="cost-row"><span>Hesaplama için yukarıdaki bilgileri doldurun</span></div>
             </div>
             <button class="pdf-button" onclick="generatePDF()" id="pdfButton" style="display: none;">
-                🖨️ Rapor Yazdır/PDF
+                📱 Rapor Paylaş
             </button>
         </div>
         
@@ -376,65 +376,56 @@
         
         // Basit PDF oluşturma fonksiyonu
         function generatePDF() {
-            // Rapor HTML'i oluştur
+            // Rapor metni oluştur
             const reportDate = new Date().toLocaleDateString('tr-TR');
             
-            const reportHTML = `
-                <div style="padding: 20px; font-family: Arial; background: white;">
-                    <h1 style="color: #2E7D32; text-align: center;">UMRE/HAC MALİYET HESAPLAMA RAPORU</h1>
-                    <hr>
-                    <p><strong>Hazırlayan:</strong> Ercan Belül</p>
-                    <p><strong>Rapor Tarihi:</strong> ${reportDate}</p>
-                    <p><strong>Döviz Kuru:</strong> 1 ${calculationData.visaCurrency} = ${calculationData.exchangeRate} SAR</p>
-                    <hr>
-                    
-                    <h3 style="color: #1976D2;">SEYAHAT BİLGİLERİ</h3>
-                    <ul>
-                        <li>Kişi Sayısı: ${calculationData.paxCount} kişi</li>
-                        <li>Toplam Gece: ${calculationData.totalNights} gece (Makkah: ${calculationData.makkahNights}, Madinah: ${calculationData.madinahNights})</li>
-                    </ul>
-                    
-                    <h3 style="color: #1976D2;">MALİYET DETAYLARI</h3>
-                    <ul>
-                        <li>🛂 Vize Masrafı: ${calculationData.totalVisaCost.toFixed(2)} ${calculationData.visaCurrency} = ${calculationData.visaCostSar.toFixed(2)} SAR</li>
-                        <li>✈️ Uçak Bileti${calculationData.airlineName ? ' (' + calculationData.airlineName + ')' : ''}: ${calculationData.totalFlightCost.toFixed(2)} ${calculationData.flightCurrency} = ${calculationData.flightCostSar.toFixed(2)} SAR</li>
-                        <li>🏨 Otel Masrafı: ${calculationData.totalHotelSar.toFixed(2)} SAR</li>
-                        <li>🍽️ Yemek Masrafı: ${(calculationData.makkahMealSar + calculationData.madinahMealSar).toFixed(2)} SAR</li>
-                    </ul>
-                    
-                    <h3 style="color: #1976D2;">TOPLAM MALİYET</h3>
-                    <p><strong>TOPLAM: ${calculationData.totalCostSar.toFixed(2)} SAR</strong></p>
-                    <p><strong>TOPLAM: ${calculationData.totalCostEur.toFixed(2)} ${calculationData.visaCurrency}</strong></p>
-                    <p><strong>KİŞİ BAŞI: ${calculationData.costPerPersonSar.toFixed(2)} SAR</strong></p>
-                    <p><strong>KİŞİ BAŞI: ${calculationData.costPerPersonForeign.toFixed(2)} ${calculationData.visaCurrency}</strong></p>
-                    
-                    <hr>
-                    <p style="text-align: center; color: #666; font-size: 12px;">© 2025 Ercan Belül - Geliştirici</p>
-                </div>
+            const reportText = `
+UMRE/HAC MALİYET HESAPLAMA RAPORU
+
+Hazırlayan: Ercan Belül
+Rapor Tarihi: ${reportDate}
+Döviz Kuru: 1 ${calculationData.visaCurrency} = ${calculationData.exchangeRate} SAR
+
+SEYAHAT BİLGİLERİ:
+• Kişi Sayısı: ${calculationData.paxCount} kişi
+• Toplam Gece: ${calculationData.totalNights} gece (Makkah: ${calculationData.makkahNights}, Madinah: ${calculationData.madinahNights})
+
+MALİYET DETAYLARI:
+• Vize Masrafı: ${calculationData.totalVisaCost.toFixed(2)} ${calculationData.visaCurrency} = ${calculationData.visaCostSar.toFixed(2)} SAR
+• Uçak Bileti${calculationData.airlineName ? ' (' + calculationData.airlineName + ')' : ''}: ${calculationData.totalFlightCost.toFixed(2)} ${calculationData.flightCurrency} = ${calculationData.flightCostSar.toFixed(2)} SAR
+• Otel Masrafı: ${calculationData.totalHotelSar.toFixed(2)} SAR
+• Yemek Masrafı: ${(calculationData.makkahMealSar + calculationData.madinahMealSar).toFixed(2)} SAR
+
+TOPLAM MALİYET:
+• TOPLAM: ${calculationData.totalCostSar.toFixed(2)} SAR
+• TOPLAM: ${calculationData.totalCostEur.toFixed(2)} ${calculationData.visaCurrency}
+• KİŞİ BAŞI: ${calculationData.costPerPersonSar.toFixed(2)} SAR
+• KİŞİ BAŞI: ${calculationData.costPerPersonForeign.toFixed(2)} ${calculationData.visaCurrency}
+
+© 2025 Ercan Belül - Geliştirici
             `;
             
-            // Yeni pencere aç ve yazdır
-            const printWindow = window.open('', '_blank');
-            printWindow.document.write(`
-                <html>
-                    <head>
-                        <title>Umre Hac Maliyet Raporu</title>
-                        <style>
-                            body { margin: 0; padding: 20px; }
-                            @media print { 
-                                body { margin: 0; }
-                            }
-                        </style>
-                    </head>
-                    <body>${reportHTML}</body>
-                </html>
-            `);
-            printWindow.document.close();
+            // WhatsApp/Email paylaşım metni hazırla
+            const shareText = encodeURIComponent(reportText);
             
-            // Yazdırma diyaloğunu aç
-            setTimeout(() => {
-                printWindow.print();
-            }, 500);
+            // Paylaşım seçenekleri göster
+            if (navigator.share) {
+                // Mobil paylaşım API'si varsa
+                navigator.share({
+                    title: 'Umre Hac Maliyet Raporu',
+                    text: reportText
+                }).catch(err => console.log('Paylaşım iptal edildi'));
+            } else {
+                // Alternatif: Metni kopyala
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(reportText).then(() => {
+                        alert('📋 Rapor panoya kopyalandı!\n\nŞimdi WhatsApp, Email veya not uygulamasına yapıştırabilirsiniz.');
+                    });
+                } else {
+                    // Son çare: Metni göster
+                    alert('📄 RAPOR METNİ:\n\n' + reportText);
+                }
+            }
         }
         
         // Sayfa yüklendiğinde sadece hesaplama yap, tarihleri boş bırak
