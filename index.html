@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Umre Hac Maliyet Hesaplama - by Ercan</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
@@ -21,6 +22,8 @@
         .currency-symbol { font-size: 24px; font-weight: bold; color: #1976D2; }
         button { width: 100%; background: #2E7D32; color: white; padding: 15px; border: none; border-radius: 10px; font-size: 18px; font-weight: bold; margin: 20px 0; cursor: pointer; }
         button:hover { background: #1B5E20; }
+        .pdf-button { background: #D32F2F; margin-top: 10px; }
+        .pdf-button:hover { background: #B71C1C; }
         .result-section { background: #f3e5f5; padding: 20px; border-radius: 10px; margin-top: 20px; }
         .cost-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #ddd; }
         .cost-row.total { font-weight: bold; font-size: 16px; color: #1976D2; }
@@ -211,6 +214,9 @@
             <div id="resultContent">
                 <div class="cost-row"><span>Hesaplama için yukarıdaki bilgileri doldurun</span></div>
             </div>
+            <button class="pdf-button" onclick="generatePDF()" id="pdfButton" style="display: none;">
+                📄 PDF Rapor Oluştur
+            </button>
         </div>
         
         <div style="text-align: center; margin-top: 20px; color: #666; font-size: 12px;">
@@ -219,6 +225,9 @@
     </div>
     
     <script>
+        // Global değişkenler
+        let calculationData = {};
+        
         // Tarih değiştiğinde gece sayısını hesapla
         function calculateNights() {
             // Makkah gece hesaplama
@@ -328,6 +337,21 @@
             const costPerPersonSar = totalCostSar / paxCount;
             const costPerPersonForeign = costPerPersonSar / exchangeRate;
             
+            // Global değişkene kaydet (PDF için)
+            calculationData = {
+                paxCount, totalNights, makkahNights, madinahNights,
+                visaCost, visaCurrency, totalVisaCost, visaCostSar,
+                flightCost, flightCurrency, totalFlightCost, flightCostSar, airlineName,
+                totalHotelSar, makkahTotal, madinahTotal,
+                makkahMealSar, madinahMealSar, makkahMealType, madinahMealType,
+                totalCostSar, totalCostEur, costPerPersonSar, costPerPersonForeign,
+                exchangeRate,
+                makkahCheckIn: document.getElementById('makkahCheckIn').value,
+                makkahCheckOut: document.getElementById('makkahCheckOut').value,
+                madinahCheckIn: document.getElementById('madinahCheckIn').value,
+                madinahCheckOut: document.getElementById('madinahCheckOut').value
+            };
+            
             // Sonuçları göster
             let airlineDisplay = airlineName ? ` (${airlineName})` : '';
             
@@ -346,12 +370,116 @@
                 <div class="cost-row person"><span>👤 KİŞİ BAŞI (SAR):</span><span>${costPerPersonSar.toFixed(2)} SAR</span></div>
                 <div class="cost-row person"><span>👤 KİŞİ BAŞI (${visaCurrency}):</span><span>${costPerPersonForeign.toFixed(2)} ${visaCurrency}</span></div>
             `;
+            
+            // PDF butonunu göster
+            if (paxCount > 0 && totalCostSar > 0) {
+                document.getElementById('pdfButton').style.display = 'block';
+            } else {
+                document.getElementById('pdfButton').style.display = 'none';
+            }
         }
         
-        // Sayfa yüklendiğinde sadece hesaplama yap, tarihleri boş bırak
-        document.addEventListener('DOMContentLoaded', function() {
-            calculateAll();
-        });
-    </script>
-</body>
-</html>
+        // PDF oluşturma fonksiyonu
+        function generatePDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Tarih formatı
+            const today = new Date();
+            const reportDate = today.toLocaleDateString('tr-TR');
+            
+            // PDF başlık ve header
+            doc.setFontSize(20);
+            doc.setTextColor(46, 125, 50);
+            doc.text('UMRE/HAC MALİYET HESAPLAMA RAPORU', 20, 25);
+            
+            doc.setFontSize(12);
+            doc.setTextColor(0, 0, 0);
+            doc.text(`Hazırlayan: Ercan Belül`, 20, 40);
+            doc.text(`Rapor Tarihi: ${reportDate}`, 20, 50);
+            doc.text(`Döviz Kuru: 1 ${calculationData.visaCurrency} = ${calculationData.exchangeRate} SAR`, 20, 60);
+            
+            // Çizgi
+            doc.line(20, 70, 190, 70);
+            
+            let yPos = 85;
+            
+            // Seyahat Bilgileri
+            doc.setFontSize(14);
+            doc.setTextColor(25, 118, 210);
+            doc.text('SEYAHAT BİLGİLERİ', 20, yPos);
+            yPos += 15;
+            
+            doc.setFontSize(11);
+            doc.setTextColor(0, 0, 0);
+            doc.text(`• Kişi Sayısı: ${calculationData.paxCount} kişi`, 25, yPos);
+            yPos += 10;
+            doc.text(`• Toplam Gece: ${calculationData.totalNights} gece (Makkah: ${calculationData.makkahNights}, Madinah: ${calculationData.madinahNights})`, 25, yPos);
+            yPos += 10;
+            
+            if (calculationData.makkahCheckIn && calculationData.makkahCheckOut) {
+                doc.text(`• Makkah Tarihleri: ${calculationData.makkahCheckIn} - ${calculationData.makkahCheckOut}`, 25, yPos);
+                yPos += 10;
+            }
+            
+            if (calculationData.madinahCheckIn && calculationData.madinahCheckOut) {
+                doc.text(`• Madinah Tarihleri: ${calculationData.madinahCheckIn} - ${calculationData.madinahCheckOut}`, 25, yPos);
+                yPos += 10;
+            }
+            
+            yPos += 10;
+            
+            // Maliyet Detayları
+            doc.setFontSize(14);
+            doc.setTextColor(25, 118, 210);
+            doc.text('MALİYET DETAYLARI', 20, yPos);
+            yPos += 15;
+            
+            doc.setFontSize(11);
+            doc.setTextColor(0, 0, 0);
+            
+            // Vize
+            doc.text(`• Vize Masrafı:`, 25, yPos);
+            doc.text(`${calculationData.totalVisaCost.toFixed(2)} ${calculationData.visaCurrency} = ${calculationData.visaCostSar.toFixed(2)} SAR`, 60, yPos);
+            yPos += 10;
+            
+            // Uçak Bileti
+            const airlineText = calculationData.airlineName ? ` (${calculationData.airlineName})` : '';
+            doc.text(`• Uçak Bileti${airlineText}:`, 25, yPos);
+            doc.text(`${calculationData.totalFlightCost.toFixed(2)} ${calculationData.flightCurrency} = ${calculationData.flightCostSar.toFixed(2)} SAR`, 60, yPos);
+            yPos += 10;
+            
+            // Otel
+            doc.text(`• Otel Masrafı:`, 25, yPos);
+            doc.text(`${calculationData.totalHotelSar.toFixed(2)} SAR`, 60, yPos);
+            yPos += 5;
+            doc.text(`  - Makkah: ${calculationData.makkahTotal.toFixed(2)} SAR`, 30, yPos);
+            yPos += 5;
+            doc.text(`  - Madinah: ${calculationData.madinahTotal.toFixed(2)} SAR`, 30, yPos);
+            yPos += 10;
+            
+            // Yemek
+            doc.text(`• Yemek Masrafları:`, 25, yPos);
+            doc.text(`${(calculationData.makkahMealSar + calculationData.madinahMealSar).toFixed(2)} SAR`, 60, yPos);
+            yPos += 5;
+            doc.text(`  - Makkah (${calculationData.makkahMealType}): ${calculationData.makkahMealSar.toFixed(2)} SAR`, 30, yPos);
+            yPos += 5;
+            doc.text(`  - Madinah (${calculationData.madinahMealType}): ${calculationData.madinahMealSar.toFixed(2)} SAR`, 30, yPos);
+            yPos += 15;
+            
+            // Toplam
+            doc.setFontSize(14);
+            doc.setTextColor(25, 118, 210);
+            doc.text('TOPLAM MALİYET', 20, yPos);
+            yPos += 15;
+            
+            doc.setFontSize(12);
+            doc.setTextColor(0, 0, 0);
+            doc.text(`TOPLAM: ${calculationData.totalCostSar.toFixed(2)} SAR`, 25, yPos);
+            yPos += 10;
+            doc.text(`TOPLAM: ${calculationData.totalCostEur.toFixed(2)} ${calculationData.visaCurrency}`, 25, yPos);
+            yPos += 15;
+            
+            doc.text(`KİŞİ BAŞI: ${calculationData.costPerPersonSar.toFixed(2)} SAR`, 25, yPos);
+            yPos += 10;
+            doc.text(`KİŞİ BAŞI: ${calculationData.costPerPersonForeign.toFixed(2)} ${calculationData.visaCurrency}`,
