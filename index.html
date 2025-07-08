@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Umre Hac Maliyet Hesaplama - by Ercan</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
@@ -214,7 +215,7 @@
                 <div class="cost-row"><span>Hesaplama için yukarıdaki bilgileri doldurun</span></div>
             </div>
             <button class="pdf-button" onclick="generatePDF()" id="pdfButton" style="display: none;">
-                📱 Rapor Paylaş
+                📄 PDF İndir
             </button>
         </div>
         
@@ -344,7 +345,11 @@
                 totalHotelSar, makkahTotal, madinahTotal,
                 makkahMealSar, madinahMealSar, makkahMealType, madinahMealType,
                 totalCostSar, totalCostEur, costPerPersonSar, costPerPersonForeign,
-                exchangeRate
+                exchangeRate,
+                makkahCheckIn: document.getElementById('makkahCheckIn').value,
+                makkahCheckOut: document.getElementById('makkahCheckOut').value,
+                madinahCheckIn: document.getElementById('madinahCheckIn').value,
+                madinahCheckOut: document.getElementById('madinahCheckOut').value
             };
             
             // Sonuçları göster
@@ -374,64 +379,109 @@
             }
         }
         
-        // Basit PDF oluşturma fonksiyonu
+        // PDF oluşturma fonksiyonu - GERÇEK PDF
         function generatePDF() {
-            // Rapor metni oluştur
-            const reportDate = new Date().toLocaleDateString('tr-TR');
-            
-            const reportText = `
-UMRE/HAC MALİYET HESAPLAMA RAPORU
-
-Hazırlayan: Ercan Belül
-Rapor Tarihi: ${reportDate}
-Döviz Kuru: 1 ${calculationData.visaCurrency} = ${calculationData.exchangeRate} SAR
-
-SEYAHAT BİLGİLERİ:
-• Kişi Sayısı: ${calculationData.paxCount} kişi
-• Toplam Gece: ${calculationData.totalNights} gece (Makkah: ${calculationData.makkahNights}, Madinah: ${calculationData.madinahNights})
-
-MALİYET DETAYLARI:
-• Vize Masrafı: ${calculationData.totalVisaCost.toFixed(2)} ${calculationData.visaCurrency} = ${calculationData.visaCostSar.toFixed(2)} SAR
-• Uçak Bileti${calculationData.airlineName ? ' (' + calculationData.airlineName + ')' : ''}: ${calculationData.totalFlightCost.toFixed(2)} ${calculationData.flightCurrency} = ${calculationData.flightCostSar.toFixed(2)} SAR
-• Otel Masrafı: ${calculationData.totalHotelSar.toFixed(2)} SAR
-• Yemek Masrafı: ${(calculationData.makkahMealSar + calculationData.madinahMealSar).toFixed(2)} SAR
-
-TOPLAM MALİYET:
-• TOPLAM: ${calculationData.totalCostSar.toFixed(2)} SAR
-• TOPLAM: ${calculationData.totalCostEur.toFixed(2)} ${calculationData.visaCurrency}
-• KİŞİ BAŞI: ${calculationData.costPerPersonSar.toFixed(2)} SAR
-• KİŞİ BAŞI: ${calculationData.costPerPersonForeign.toFixed(2)} ${calculationData.visaCurrency}
-
-© 2025 Ercan Belül - Geliştirici
-            `;
-            
-            // WhatsApp/Email paylaşım metni hazırla
-            const shareText = encodeURIComponent(reportText);
-            
-            // Paylaşım seçenekleri göster
-            if (navigator.share) {
-                // Mobil paylaşım API'si varsa
-                navigator.share({
-                    title: 'Umre Hac Maliyet Raporu',
-                    text: reportText
-                }).catch(err => console.log('Paylaşım iptal edildi'));
-            } else {
-                // Alternatif: Metni kopyala
-                if (navigator.clipboard) {
-                    navigator.clipboard.writeText(reportText).then(() => {
-                        alert('📋 Rapor panoya kopyalandı!\n\nŞimdi WhatsApp, Email veya not uygulamasına yapıştırabilirsiniz.');
-                    });
-                } else {
-                    // Son çare: Metni göster
-                    alert('📄 RAPOR METNİ:\n\n' + reportText);
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                // Tarih formatı
+                const today = new Date();
+                const reportDate = today.toLocaleDateString('tr-TR');
+                
+                // PDF başlık
+                doc.setFontSize(16);
+                doc.setTextColor(46, 125, 50);
+                doc.text('UMRE/HAC MALIYET HESAPLAMA RAPORU', 20, 25);
+                
+                doc.setFontSize(10);
+                doc.setTextColor(0, 0, 0);
+                doc.text(`Hazırlayan: Ercan Belul`, 20, 40);
+                doc.text(`Rapor Tarihi: ${reportDate}`, 20, 48);
+                doc.text(`Doviz Kuru: 1 ${calculationData.visaCurrency} = ${calculationData.exchangeRate} SAR`, 20, 56);
+                
+                // Çizgi
+                doc.line(20, 65, 190, 65);
+                
+                let yPos = 75;
+                
+                // Seyahat Bilgileri
+                doc.setFontSize(12);
+                doc.setTextColor(25, 118, 210);
+                doc.text('SEYAHAT BILGILERI', 20, yPos);
+                yPos += 12;
+                
+                doc.setFontSize(9);
+                doc.setTextColor(0, 0, 0);
+                doc.text(`Kisi Sayisi: ${calculationData.paxCount} kisi`, 25, yPos);
+                yPos += 8;
+                doc.text(`Toplam Gece: ${calculationData.totalNights} gece (Makkah: ${calculationData.makkahNights}, Madinah: ${calculationData.madinahNights})`, 25, yPos);
+                yPos += 8;
+                
+                if (calculationData.makkahCheckIn && calculationData.makkahCheckOut) {
+                    doc.text(`Makkah: ${calculationData.makkahCheckIn} - ${calculationData.makkahCheckOut}`, 25, yPos);
+                    yPos += 8;
                 }
-            }
-        }
-        
-        // Sayfa yüklendiğinde sadece hesaplama yap, tarihleri boş bırak
-        document.addEventListener('DOMContentLoaded', function() {
-            calculateAll();
-        });
-    </script>
-</body>
-</html>
+                
+                if (calculationData.madinahCheckIn && calculationData.madinahCheckOut) {
+                    doc.text(`Madinah: ${calculationData.madinahCheckIn} - ${calculationData.madinahCheckOut}`, 25, yPos);
+                    yPos += 8;
+                }
+                
+                yPos += 5;
+                
+                // Maliyet Detayları
+                doc.setFontSize(12);
+                doc.setTextColor(25, 118, 210);
+                doc.text('MALIYET DETAYLARI', 20, yPos);
+                yPos += 12;
+                
+                doc.setFontSize(9);
+                doc.setTextColor(0, 0, 0);
+                
+                doc.text(`Vize Masrafi: ${calculationData.totalVisaCost.toFixed(2)} ${calculationData.visaCurrency} = ${calculationData.visaCostSar.toFixed(2)} SAR`, 25, yPos);
+                yPos += 8;
+                
+                const airlineText = calculationData.airlineName ? ` (${calculationData.airlineName})` : '';
+                doc.text(`Ucak Bileti${airlineText}: ${calculationData.totalFlightCost.toFixed(2)} ${calculationData.flightCurrency} = ${calculationData.flightCostSar.toFixed(2)} SAR`, 25, yPos);
+                yPos += 8;
+                
+                doc.text(`Otel Masrafi: ${calculationData.totalHotelSar.toFixed(2)} SAR`, 25, yPos);
+                yPos += 6;
+                doc.text(`  - Makkah: ${calculationData.makkahTotal.toFixed(2)} SAR`, 30, yPos);
+                yPos += 6;
+                doc.text(`  - Madinah: ${calculationData.madinahTotal.toFixed(2)} SAR`, 30, yPos);
+                yPos += 8;
+                
+                doc.text(`Yemek Masraflari: ${(calculationData.makkahMealSar + calculationData.madinahMealSar).toFixed(2)} SAR`, 25, yPos);
+                yPos += 6;
+                doc.text(`  - Makkah (${calculationData.makkahMealType}): ${calculationData.makkahMealSar.toFixed(2)} SAR`, 30, yPos);
+                yPos += 6;
+                doc.text(`  - Madinah (${calculationData.madinahMealType}): ${calculationData.madinahMealSar.toFixed(2)} SAR`, 30, yPos);
+                yPos += 12;
+                
+                // Toplam
+                doc.setFontSize(12);
+                doc.setTextColor(25, 118, 210);
+                doc.text('TOPLAM MALIYET', 20, yPos);
+                yPos += 12;
+                
+                doc.setFontSize(10);
+                doc.setTextColor(0, 0, 0);
+                doc.text(`TOPLAM: ${calculationData.totalCostSar.toFixed(2)} SAR`, 25, yPos);
+                yPos += 8;
+                doc.text(`TOPLAM: ${calculationData.totalCostEur.toFixed(2)} ${calculationData.visaCurrency}`, 25, yPos);
+                yPos += 10;
+                
+                doc.text(`KISI BASI: ${calculationData.costPerPersonSar.toFixed(2)} SAR`, 25, yPos);
+                yPos += 8;
+                doc.text(`KISI BASI: ${calculationData.costPerPersonForeign.toFixed(2)} ${calculationData.visaCurrency}`, 25, yPos);
+                
+                // Footer
+                yPos += 25;
+                doc.line(20, yPos, 190, yPos);
+                yPos += 8;
+                doc.setFontSize(8);
+                doc.setTextColor(100, 100, 100);
+                doc.text('Bu rapor Umre Hac Maliyet Hesaplama uygulamasi tarafindan olusturulmustur.', 20, yPos);
+                yPos
