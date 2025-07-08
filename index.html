@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Umre Hac Maliyet Hesaplama - by Ercan</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
@@ -21,6 +21,8 @@
         .currency-symbol { font-size: 24px; font-weight: bold; color: #1976D2; }
         button { width: 100%; background: #2E7D32; color: white; padding: 15px; border: none; border-radius: 10px; font-size: 18px; font-weight: bold; margin: 20px 0; cursor: pointer; }
         button:hover { background: #1B5E20; }
+        .pdf-button { background: #D32F2F; margin-top: 10px; }
+        .pdf-button:hover { background: #B71C1C; }
         .result-section { background: #f3e5f5; padding: 20px; border-radius: 10px; margin-top: 20px; }
         .cost-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #ddd; }
         .cost-row.total { font-weight: bold; font-size: 16px; color: #1976D2; }
