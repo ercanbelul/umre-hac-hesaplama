@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Umre Hac Maliyet Hesaplama</title>
+    <title>Umre Hac Maliyet Hesaplama - by Ercan</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
@@ -29,11 +29,13 @@
         .date-group { flex: 1; }
         .nights-display { padding: 8px; background: #e3f2fd; border-radius: 5px; text-align: center; font-weight: bold; font-size: 14px; }
         .total-display { padding: 8px; background: #e8f5e8; border-radius: 5px; text-align: center; font-weight: bold; font-size: 14px; }
+        .airline-section { background: #fff3e0; border-left-color: #FF9800; }
+        .airline-section h3 { color: #FF9800; }
     </style>
 </head>
 <body>
     <div id="app">
-        <h1>Umre Hac Maliyet Hesaplama - by Ercan Belul</h1>
+        <h1>Umre Hac Maliyet Hesaplama - by Ercan</h1>
         
         <!-- Kişi Sayısı -->
         <div class="section">
@@ -55,6 +57,30 @@
                 <div class="form-group">
                     <label>Para Birimi</label>
                     <select id="visaCurrency" onchange="calculateAll()">
+                        <option value="EUR">💶 EUR (Euro)</option>
+                        <option value="USD">💵 USD (Dolar)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Uçak Bileti Maliyetleri -->
+        <div class="section airline-section">
+            <h3>✈️ UÇAK BİLETİ MALİYETLERİ</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Havayolu Şirketi</label>
+                    <input type="text" id="airlineName" placeholder="Örn: Turkish Airlines" value="" onchange="calculateAll()">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Kişi Başı Uçak Bileti Fiyatı</label>
+                    <input type="number" id="flightCost" placeholder="Örn: 850" value="" step="0.01" onchange="calculateAll()">
+                </div>
+                <div class="form-group">
+                    <label>Para Birimi</label>
+                    <select id="flightCurrency" onchange="calculateAll()">
                         <option value="EUR">💶 EUR (Euro)</option>
                         <option value="USD">💵 USD (Dolar)</option>
                     </select>
@@ -186,6 +212,10 @@
                 <div class="cost-row"><span>Hesaplama için yukarıdaki bilgileri doldurun</span></div>
             </div>
         </div>
+        
+        <div style="text-align: center; margin-top: 20px; color: #666; font-size: 12px;">
+            © 2025 Ercan Belül - Geliştirici
+        </div>
     </div>
     
     <script>
@@ -254,9 +284,16 @@
         // Ana hesaplama fonksiyonu
         function calculateAll() {
             const paxCount = parseInt(document.getElementById('paxCount').value) || 0;
+            const exchangeRate = parseFloat(document.getElementById('exchangeRate').value) || 1;
+            
+            // Vize bilgileri
             const visaCost = parseFloat(document.getElementById('visaCost').value) || 0;
             const visaCurrency = document.getElementById('visaCurrency').value;
-            const exchangeRate = parseFloat(document.getElementById('exchangeRate').value) || 1;
+            
+            // Uçak bileti bilgileri
+            const flightCost = parseFloat(document.getElementById('flightCost').value) || 0;
+            const flightCurrency = document.getElementById('flightCurrency').value;
+            const airlineName = document.getElementById('airlineName').value || '';
             
             // Gece sayılarını al
             const makkahNights = parseInt(document.getElementById('makkahNights').textContent.split(' ')[0]) || 0;
@@ -278,21 +315,27 @@
             const totalVisaCost = paxCount * visaCost;
             const visaCostSar = totalVisaCost * exchangeRate;
             
+            const totalFlightCost = paxCount * flightCost;
+            const flightCostSar = totalFlightCost * exchangeRate;
+            
             const makkahMealSar = paxCount * makkahNights * makkahMealCost;
             const madinahMealSar = paxCount * madinahNights * madinahMealCost;
             const totalMealSar = makkahMealSar + madinahMealSar;
             
-            const totalCostSar = visaCostSar + totalHotelSar + totalMealSar;
+            const totalCostSar = visaCostSar + flightCostSar + totalHotelSar + totalMealSar;
             const totalCostEur = totalCostSar / exchangeRate;
             
             const costPerPersonSar = totalCostSar / paxCount;
             const costPerPersonForeign = costPerPersonSar / exchangeRate;
             
             // Sonuçları göster
+            let airlineDisplay = airlineName ? ` (${airlineName})` : '';
+            
             document.getElementById('resultContent').innerHTML = `
                 <div class="cost-row"><span>👥 Kişi Sayısı:</span><span>${paxCount} kişi</span></div>
                 <div class="cost-row"><span>📅 Toplam Gece:</span><span>${totalNights} gece (Makkah: ${makkahNights}, Madinah: ${madinahNights})</span></div>
                 <div class="cost-row"><span>🛂 Vize Masrafı:</span><span>${totalVisaCost.toFixed(2)} ${visaCurrency} = ${visaCostSar.toFixed(2)} SAR</span></div>
+                <div class="cost-row"><span>✈️ Uçak Bileti${airlineDisplay}:</span><span>${totalFlightCost.toFixed(2)} ${flightCurrency} = ${flightCostSar.toFixed(2)} SAR</span></div>
                 <div class="cost-row"><span>🏨 Otel Masrafı:</span><span>${totalHotelSar.toFixed(2)} SAR</span></div>
                 <div class="cost-row"><span>🕋 Mekke Yemek (${makkahMealType}):</span><span>${makkahMealSar.toFixed(2)} SAR</span></div>
                 <div class="cost-row"><span>🕌 Medine Yemek (${madinahMealType}):</span><span>${madinahMealSar.toFixed(2)} SAR</span></div>
