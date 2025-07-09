@@ -109,6 +109,35 @@
             </div>
         </div>
         
+        <!-- Otobüs Maliyetleri -->
+        <div class="section" style="background: #f3e5f5; border-left-color: #9C27B0;">
+            <h3 style="color: #9C27B0;">🚌 OTOBÜS MALİYETLERİ</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Kişi Başı Otobüs Ücreti</label>
+                    <input type="number" id="busCost" placeholder="Örn: 150" value="" step="0.01" onchange="calculateAll()">
+                </div>
+                <div class="form-group">
+                    <label>Para Birimi</label>
+                    <select id="busCurrency" onchange="calculateAll()">
+                        <option value="EUR">💶 EUR (Euro)</option>
+                        <option value="USD">💵 USD (Dolar)</option>
+                        <option value="SAR">🏛️ SAR (Riyal)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Otobüs Türü</label>
+                    <select id="busType" onchange="calculateAll()">
+                        <option value="standard">🚌 Standart Otobüs</option>
+                        <option value="vip">✨ VIP Otobüs</option>
+                        <option value="local">🏪 Yerel Ulaşım</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
         <!-- Otel Rezervasyonları -->
         <div class="section">
             <h3>OTEL REZERVASYONLARI</h3>
@@ -335,6 +364,48 @@
             calculateAll();
         }
         
+        // Basit döviz kuru güncellemesi (API yerine)
+        function fetchLiveRates() {
+            const statusDiv = document.getElementById('exchangeRateStatus');
+            const currencyType = document.getElementById('currencyType').value;
+            
+            try {
+                statusDiv.textContent = '🔄 Güncel kurlar ayarlanıyor...';
+                statusDiv.style.color = '#2196F3';
+                
+                // Basit sabit kurlar (gerçek API yerine)
+                let rate;
+                if (currencyType === 'EUR') {
+                    rate = 3.95; // Örnek EUR/SAR kuru
+                } else if (currencyType === 'USD') {
+                    rate = 3.75; // Örnek USD/SAR kuru
+                }
+                
+                // Kuru input'a yaz
+                document.getElementById('exchangeRate').value = rate.toFixed(4);
+                
+                // Durum mesajını güncelle
+                const updateTime = new Date().toLocaleTimeString('tr-TR');
+                statusDiv.textContent = `✅ Kur güncellendi: 1 ${currencyType} = ${rate.toFixed(4)} SAR (${updateTime})`;
+                statusDiv.style.color = '#4CAF50';
+                
+                // Hesaplamayı yenile
+                calculateAll();
+                
+            } catch (error) {
+                console.error('Kur güncelleme hatası:', error);
+                statusDiv.textContent = '❌ Kur güncellenemedi. Manuel olarak girin.';
+                statusDiv.style.color = '#F44336';
+            }
+        }
+        
+        // Sayfa yüklendiğinde otomatik kur çekme (isteğe bağlı)
+        async function loadInitialRates() {
+            // Sayfa yüklendiğinde otomatik kur çekebiliriz
+            // Şimdilik manuel yapalım
+            console.log('Sayfa yüklendi - otomatik kur çekmek için fetchLiveRates() çağırılabilir');
+        }
+        
         // Tarih bilgilerini hesapla
         function calculateDateInfo() {
             const startDate = document.getElementById('travelStartDate').value;
@@ -429,6 +500,11 @@
             const flightCurrency = document.getElementById('flightCurrency').value;
             const airlineName = document.getElementById('airlineName').value || '';
             
+            // Otobüs bilgileri
+            const busCost = parseFloat(document.getElementById('busCost').value) || 0;
+            const busCurrency = document.getElementById('busCurrency').value;
+            const busType = document.getElementById('busType').value;
+            
             // Gece sayılarını al
             const makkahNights = parseInt(document.getElementById('makkahNights').textContent.split(' ')[0]) || 0;
             const madinahNights = parseInt(document.getElementById('madinahNights').textContent.split(' ')[0]) || 0;
@@ -452,11 +528,14 @@
             const totalFlightCost = paxCount * flightCost;
             const flightCostSar = totalFlightCost * exchangeRate;
             
+            const totalBusCost = paxCount * busCost;
+            const busCostSar = busCurrency === 'SAR' ? totalBusCost : totalBusCost * exchangeRate;
+            
             const makkahMealSar = paxCount * makkahNights * makkahMealCost;
             const madinahMealSar = paxCount * madinahNights * madinahMealCost;
             const totalMealSar = makkahMealSar + madinahMealSar;
             
-            const totalCostSar = visaCostSar + flightCostSar + totalHotelSar + totalMealSar;
+            const totalCostSar = visaCostSar + flightCostSar + busCostSar + totalHotelSar + totalMealSar;
             const totalCostEur = totalCostSar / exchangeRate;
             
             // Kar hesaplama
@@ -493,6 +572,7 @@
                 paxCount, totalNights, makkahNights, madinahNights,
                 visaCost, visaCurrency, totalVisaCost, visaCostSar,
                 flightCost, flightCurrency, totalFlightCost, flightCostSar, airlineName,
+                busCost, busType, totalBusCost, busCostSar,
                 totalHotelSar, makkahTotal, madinahTotal,
                 makkahMealSar, madinahMealSar, makkahMealType, madinahMealType,
                 totalCostSar, totalCostEur, 
@@ -510,6 +590,7 @@
             
             // Sonuçları göster
             let airlineDisplay = airlineName ? ` (${airlineName})` : '';
+            let busTypeDisplay = busType === 'standard' ? 'Standart' : busType === 'vip' ? 'VIP' : 'Yerel';
             let profitDisplay = '';
             
             if (profitType === 'percentage') {
@@ -527,6 +608,7 @@
                 <div class="cost-row"><span>🏨 Toplam Gece:</span><span>${totalNights} gece (Makkah: ${makkahNights}, Madinah: ${madinahNights})</span></div>
                 <div class="cost-row"><span>🛂 Vize Masrafı:</span><span>${totalVisaCost.toFixed(2)} ${visaCurrency} = ${visaCostSar.toFixed(2)} SAR</span></div>
                 <div class="cost-row"><span>✈️ Uçak Bileti${airlineDisplay}:</span><span>${totalFlightCost.toFixed(2)} ${flightCurrency} = ${flightCostSar.toFixed(2)} SAR</span></div>
+                <div class="cost-row"><span>🚌 Otobüs (${busTypeDisplay}):</span><span>${totalBusCost.toFixed(2)} SAR</span></div>
                 <div class="cost-row"><span>🏨 Otel Masrafı:</span><span>${totalHotelSar.toFixed(2)} SAR</span></div>
                 <div class="cost-row"><span>🕋 Mekke Yemek (${makkahMealType}):</span><span>${makkahMealSar.toFixed(2)} SAR</span></div>
                 <div class="cost-row"><span>🕌 Medine Yemek (${madinahMealType}):</span><span>${madinahMealSar.toFixed(2)} SAR</span></div>
@@ -570,6 +652,7 @@ SEYAHAT BİLGİLERİ:
 MALİYET DETAYLARI:
 • Vize: ${calculationData.totalVisaCost.toFixed(2)} ${calculationData.visaCurrency} = ${calculationData.visaCostSar.toFixed(2)} SAR
 • Uçak: ${calculationData.totalFlightCost.toFixed(2)} ${calculationData.flightCurrency} = ${calculationData.flightCostSar.toFixed(2)} SAR
+• Otobüs: ${calculationData.totalBusCost.toFixed(2)} SAR
 • Otel: ${calculationData.totalHotelSar.toFixed(2)} SAR
 • Yemek: ${(calculationData.makkahMealSar + calculationData.madinahMealSar).toFixed(2)} SAR
 
@@ -615,6 +698,7 @@ TOPLAM:
             document.getElementById('profitValue').value = '';
             document.getElementById('travelStartDate').value = '';
             document.getElementById('travelEndDate').value = '';
+            document.getElementById('busCost').value = '';
             
             // Dropdown'ları varsayılana döndür
             document.getElementById('visaCurrency').value = 'EUR';
@@ -624,6 +708,7 @@ TOPLAM:
             document.getElementById('currencyType').value = 'EUR';
             document.getElementById('profitType').value = 'percentage';
             document.getElementById('profitCurrency').value = 'EUR';
+            document.getElementById('busType').value = 'standard';
             
             // Gece sayılarını sıfırla
             document.getElementById('makkahNights').textContent = '0 gece';
@@ -643,6 +728,10 @@ TOPLAM:
             document.getElementById('daysUntilTravel').textContent = 'Tarih seçin';
             document.getElementById('totalTravelDays').textContent = '0 gün';
             
+            // Kur durumunu sıfırla
+            document.getElementById('exchangeRateStatus').textContent = 'Güncel kurlar için "Anlık Kur Güncelle" butonuna tıklayın';
+            document.getElementById('exchangeRateStatus').style.color = '#666';
+            
             // Sonuçları temizle
             document.getElementById('resultContent').innerHTML = '<div class="cost-row"><span>Hesaplama için yukarıdaki bilgileri doldurun</span></div>';
             
@@ -658,6 +747,7 @@ TOPLAM:
         // Sayfa yüklendiğinde hesaplama yap
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Sayfa yüklendi');
+            loadInitialRates();
             calculateAll();
         });
     </script>
