@@ -385,27 +385,54 @@
         
         // Event listeners
         document.addEventListener('DOMContentLoaded', function() {
-            // Tüm input alanlarına change event ekle
-            const inputs = document.querySelectorAll('input, select');
-            inputs.forEach(input => {
-                if (input.id === 'doubleRooms' || input.id === 'tripleRooms' || input.id === 'quadRooms') {
-                    input.addEventListener('change', updateTotalPax);
-                } else if (input.id === 'travelStartDate' || input.id === 'travelEndDate') {
-                    input.addEventListener('change', calculateDateInfo);
-                } else if (input.id === 'makkahCheckIn' || input.id === 'makkahCheckOut' || 
-                          input.id === 'madinahCheckIn' || input.id === 'madinahCheckOut') {
-                    input.addEventListener('change', calculateNights);
-                } else if (input.id.includes('Price')) {
-                    input.addEventListener('change', calculateHotelCosts);
-                } else if (input.id === 'profitType') {
-                    input.addEventListener('change', updateProfitLabel);
-                } else if (input.id === 'currencyType') {
-                    input.addEventListener('change', updateCurrencySymbol);
-                } else {
-                    input.addEventListener('change', calculateAll);
+            console.log('Sayfa yüklendi');
+            
+            // Oda sayıları
+            document.getElementById('doubleRooms').addEventListener('input', updateTotalPax);
+            document.getElementById('tripleRooms').addEventListener('input', updateTotalPax);
+            document.getElementById('quadRooms').addEventListener('input', updateTotalPax);
+            
+            // Tarih alanları
+            document.getElementById('travelStartDate').addEventListener('change', calculateDateInfo);
+            document.getElementById('travelEndDate').addEventListener('change', calculateDateInfo);
+            document.getElementById('makkahCheckIn').addEventListener('change', calculateNights);
+            document.getElementById('makkahCheckOut').addEventListener('change', calculateNights);
+            document.getElementById('madinahCheckIn').addEventListener('change', calculateNights);
+            document.getElementById('madinahCheckOut').addEventListener('change', calculateNights);
+            
+            // Otel fiyatları
+            document.getElementById('makkahDoublePrice').addEventListener('input', calculateHotelCosts);
+            document.getElementById('makkahTriplePrice').addEventListener('input', calculateHotelCosts);
+            document.getElementById('makkahQuadPrice').addEventListener('input', calculateHotelCosts);
+            document.getElementById('madinahDoublePrice').addEventListener('input', calculateHotelCosts);
+            document.getElementById('madinahTriplePrice').addEventListener('input', calculateHotelCosts);
+            document.getElementById('madinahQuadPrice').addEventListener('input', calculateHotelCosts);
+            
+            // Kar türü
+            document.getElementById('profitType').addEventListener('change', updateProfitLabel);
+            
+            // Kur türü
+            document.getElementById('currencyType').addEventListener('change', updateCurrencySymbol);
+            
+            // Diğer tüm alanlar
+            const otherInputs = [
+                'groupName', 'groupLeader', 'visaCost', 'visaCurrency', 
+                'airlineName', 'flightCost', 'flightCurrency',
+                'busCost', 'busCurrency', 'busType',
+                'makkahHotelName', 'madinahHotelName',
+                'makkahMealCost', 'makkahMealType', 'madinahMealCost', 'madinahMealType',
+                'profitValue', 'profitCurrency', 'exchangeRate'
+            ];
+            
+            otherInputs.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.addEventListener('input', calculateAll);
+                    element.addEventListener('change', calculateAll);
                 }
             });
             
+            // İlk hesaplamayı yap
             calculateAll();
         });
         
@@ -534,7 +561,411 @@
             if (makkahCheckIn && makkahCheckOut) {
                 const checkIn = new Date(makkahCheckIn);
                 const checkOut = new Date(makkahCheckOut);
-                const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
+                document.getElementById('madinahNights').textContent = nights > 0 ? nights + ' gece' : '0 gece';
+            }
+            
+            calculateHotelCosts();
+        }
+        
+        // Otel maliyetlerini hesapla
+        function calculateHotelCosts() {
+            // Oda sayıları
+            const doubleRooms = parseInt(document.getElementById('doubleRooms').value) || 0;
+            const tripleRooms = parseInt(document.getElementById('tripleRooms').value) || 0;
+            const quadRooms = parseInt(document.getElementById('quadRooms').value) || 0;
+            
+            // Makkah hesaplama
+            const makkahNights = parseInt(document.getElementById('makkahNights').textContent.split(' ')[0]) || 0;
+            const makkahDoublePrice = parseFloat(document.getElementById('makkahDoublePrice').value) || 0;
+            const makkahTriplePrice = parseFloat(document.getElementById('makkahTriplePrice').value) || 0;
+            const makkahQuadPrice = parseFloat(document.getElementById('makkahQuadPrice').value) || 0;
+            
+            const makkahTotal = (doubleRooms * makkahDoublePrice * makkahNights) + 
+                              (tripleRooms * makkahTriplePrice * makkahNights) + 
+                              (quadRooms * makkahQuadPrice * makkahNights);
+            
+            document.getElementById('makkahTotal').textContent = makkahTotal.toFixed(2) + ' SAR';
+            
+            // Madinah hesaplama
+            const madinahNights = parseInt(document.getElementById('madinahNights').textContent.split(' ')[0]) || 0;
+            const madinahDoublePrice = parseFloat(document.getElementById('madinahDoublePrice').value) || 0;
+            const madinahTriplePrice = parseFloat(document.getElementById('madinahTriplePrice').value) || 0;
+            const madinahQuadPrice = parseFloat(document.getElementById('madinahQuadPrice').value) || 0;
+            
+            const madinahTotal = (doubleRooms * madinahDoublePrice * madinahNights) + 
+                                (tripleRooms * madinahTriplePrice * madinahNights) + 
+                                (quadRooms * madinahQuadPrice * madinahNights);
+            
+            document.getElementById('madinahTotal').textContent = madinahTotal.toFixed(2) + ' SAR';
+            
+            calculateAll();
+        }
+        
+        // Ana hesaplama fonksiyonu
+        function calculateAll() {
+            console.log('calculateAll çalışıyor');
+            
+            try {
+                const paxCount = parseInt(document.getElementById('paxCount').value) || 0;
+                const exchangeRate = parseFloat(document.getElementById('exchangeRate').value) || 1;
+                
+                console.log('Kişi sayısı:', paxCount, 'Döviz kuru:', exchangeRate);
+            
+            // Vize bilgileri
+            const visaCost = parseFloat(document.getElementById('visaCost').value) || 0;
+            const visaCurrency = document.getElementById('visaCurrency').value;
+            
+            // Uçak bileti bilgileri
+            const flightCost = parseFloat(document.getElementById('flightCost').value) || 0;
+            const flightCurrency = document.getElementById('flightCurrency').value;
+            const airlineName = document.getElementById('airlineName').value || '';
+            
+            // Otobüs bilgileri
+            const busCost = parseFloat(document.getElementById('busCost').value) || 0;
+            const busCurrency = document.getElementById('busCurrency').value;
+            const busType = document.getElementById('busType').value;
+            
+            // Oda sayıları
+            const doubleRooms = parseInt(document.getElementById('doubleRooms').value) || 0;
+            const tripleRooms = parseInt(document.getElementById('tripleRooms').value) || 0;
+            const quadRooms = parseInt(document.getElementById('quadRooms').value) || 0;
+            
+            // Gece sayıları
+            const makkahNights = parseInt(document.getElementById('makkahNights').textContent.split(' ')[0]) || 0;
+            const madinahNights = parseInt(document.getElementById('madinahNights').textContent.split(' ')[0]) || 0;
+            const totalNights = makkahNights + madinahNights;
+            
+            // Otel maliyetleri
+            const makkahTotal = parseFloat(document.getElementById('makkahTotal').textContent.split(' ')[0]) || 0;
+            const madinahTotal = parseFloat(document.getElementById('madinahTotal').textContent.split(' ')[0]) || 0;
+            const totalHotelSar = makkahTotal + madinahTotal;
+            
+            // Yemek bilgileri
+            const makkahMealCost = parseFloat(document.getElementById('makkahMealCost').value) || 0;
+            const makkahMealType = document.getElementById('makkahMealType').value;
+            const madinahMealCost = parseFloat(document.getElementById('madinahMealCost').value) || 0;
+            const madinahMealType = document.getElementById('madinahMealType').value;
+            
+            // Hesaplamalar
+            const totalVisaCost = paxCount * visaCost;
+            const visaCostSar = visaCurrency === 'SAR' ? totalVisaCost : totalVisaCost * exchangeRate;
+            
+            const totalFlightCost = paxCount * flightCost;
+            const flightCostSar = totalFlightCost * exchangeRate;
+            
+            const totalBusCost = paxCount * busCost;
+            const busCostSar = busCurrency === 'SAR' ? totalBusCost : totalBusCost * exchangeRate;
+            
+            const makkahMealSar = paxCount * makkahNights * makkahMealCost;
+            const madinahMealSar = paxCount * madinahNights * madinahMealCost;
+            const totalMealSar = makkahMealSar + madinahMealSar;
+            
+            const totalCostSar = visaCostSar + flightCostSar + busCostSar + totalHotelSar + totalMealSar;
+            const totalCostEur = totalCostSar / exchangeRate;
+            
+            // Kar hesaplama
+            const profitType = document.getElementById('profitType').value;
+            const profitValue = parseFloat(document.getElementById('profitValue').value) || 0;
+            const profitCurrency = document.getElementById('profitCurrency').value;
+            
+            let profitSar = 0;
+            if (profitType === 'percentage') {
+                profitSar = totalCostSar * (profitValue / 100);
+            } else {
+                if (profitCurrency === 'SAR') {
+                    profitSar = profitValue;
+                } else {
+                    profitSar = profitValue * exchangeRate;
+                }
+            }
+            
+            const totalWithProfitSar = totalCostSar + profitSar;
+            const totalWithProfitEur = totalWithProfitSar / exchangeRate;
+            
+            const costPerPersonSar = totalWithProfitSar / paxCount;
+            const costPerPersonForeign = costPerPersonSar / exchangeRate;
+            
+            // Global değişkene kaydet
+            calculationData = {
+                paxCount, totalNights, makkahNights, madinahNights,
+                doubleRooms, tripleRooms, quadRooms,
+                groupName: document.getElementById('groupName').value,
+                groupLeader: document.getElementById('groupLeader').value,
+                makkahHotelName: document.getElementById('makkahHotelName').value,
+                madinahHotelName: document.getElementById('madinahHotelName').value,
+                visaCost, visaCurrency, totalVisaCost, visaCostSar,
+                flightCost, flightCurrency, totalFlightCost, flightCostSar, airlineName,
+                busCost, busCurrency, busType, totalBusCost, busCostSar,
+                totalHotelSar, makkahTotal, madinahTotal,
+                makkahMealSar, madinahMealSar, makkahMealType, madinahMealType,
+                totalCostSar, totalCostEur, 
+                profitType, profitValue, profitCurrency, profitSar,
+                totalWithProfitSar, totalWithProfitEur,
+                costPerPersonSar, costPerPersonForeign,
+                exchangeRate,
+                travelStartDate: document.getElementById('travelStartDate').value,
+                travelEndDate: document.getElementById('travelEndDate').value,
+                daysUntilTravel: document.getElementById('daysUntilTravel').textContent,
+                totalTravelDays: document.getElementById('totalTravelDays').textContent
+            };
+            
+            // Sonuçları göster
+            let airlineDisplay = airlineName ? ` (${airlineName})` : '';
+            let busTypeDisplay = busType === 'standard' ? 'Standart' : busType === 'vip' ? 'VIP' : 'Yerel';
+            let profitDisplay = '';
+            
+            if (profitType === 'percentage') {
+                profitDisplay = `${profitValue}% = ${profitSar.toFixed(2)} SAR`;
+            } else {
+                profitDisplay = `${profitValue.toFixed(2)} ${profitCurrency} = ${profitSar.toFixed(2)} SAR`;
+            }
+            
+            // Oda tipine göre kişi başı hesaplama
+            let doublePerPerson = '';
+            let triplePerPerson = '';
+            let quadPerPerson = '';
+            
+            if (doubleRooms > 0) {
+                doublePerPerson = (totalWithProfitSar / (doubleRooms * 2)).toFixed(2) + ' SAR';
+            } else {
+                doublePerPerson = 'Oda yok';
+            }
+            
+            if (tripleRooms > 0) {
+                triplePerPerson = (totalWithProfitSar / (tripleRooms * 3)).toFixed(2) + ' SAR';
+            } else {
+                triplePerPerson = 'Oda yok';
+            }
+            
+            if (quadRooms > 0) {
+                quadPerPerson = (totalWithProfitSar / (quadRooms * 4)).toFixed(2) + ' SAR';
+            } else {
+                quadPerPerson = 'Oda yok';
+            }
+            
+            document.getElementById('resultContent').innerHTML = `
+                <div class="cost-row"><span>👥 Grup Adı:</span><span>${calculationData.groupName || 'Belirtilmedi'}</span></div>
+                <div class="cost-row"><span>👤 Grup Lideri:</span><span>${calculationData.groupLeader || 'Belirtilmedi'}</span></div>
+                <hr style="margin: 10px 0;">
+                <div class="cost-row"><span>🗓️ Seyahat Tarihi:</span><span>${calculationData.travelStartDate || 'Belirtilmedi'} - ${calculationData.travelEndDate || 'Belirtilmedi'}</span></div>
+                <div class="cost-row"><span>⏰ Geri Sayım:</span><span>${calculationData.daysUntilTravel}</span></div>
+                <div class="cost-row"><span>📅 Seyahat Süresi:</span><span>${calculationData.totalTravelDays}</span></div>
+                <hr style="margin: 10px 0;">
+                <div class="cost-row"><span>🛏️ Oda Dağılımı:</span><span>${doubleRooms}×Double + ${tripleRooms}×Triple + ${quadRooms}×Quad</span></div>
+                <div class="cost-row"><span>👥 Toplam Kişi:</span><span>${paxCount} kişi</span></div>
+                <div class="cost-row"><span>🕋 Makkah Otel:</span><span>${calculationData.makkahHotelName || 'Belirtilmedi'}</span></div>
+                <div class="cost-row"><span>🕌 Madinah Otel:</span><span>${calculationData.madinahHotelName || 'Belirtilmedi'}</span></div>
+                <hr style="margin: 10px 0;">
+                <div class="cost-row"><span>🏨 Toplam Gece:</span><span>${totalNights} gece (Makkah: ${makkahNights}, Madinah: ${madinahNights})</span></div>
+                <div class="cost-row"><span>🛂 Vize Masrafı:</span><span>${totalVisaCost.toFixed(2)} ${visaCurrency} = ${visaCostSar.toFixed(2)} SAR</span></div>
+                <div class="cost-row"><span>✈️ Uçak Bileti${airlineDisplay}:</span><span>${totalFlightCost.toFixed(2)} ${flightCurrency} = ${flightCostSar.toFixed(2)} SAR</span></div>
+                <div class="cost-row"><span>🚌 Otobüs (${busTypeDisplay}):</span><span>${totalBusCost.toFixed(2)} ${busCurrency} = ${busCostSar.toFixed(2)} SAR</span></div>
+                <div class="cost-row"><span>🏨 Otel Masrafı:</span><span>${totalHotelSar.toFixed(2)} SAR</span></div>
+                <div class="cost-row"><span>🕋 Mekke Yemek (${makkahMealType}):</span><span>${makkahMealSar.toFixed(2)} SAR</span></div>
+                <div class="cost-row"><span>🕌 Medine Yemek (${madinahMealType}):</span><span>${madinahMealSar.toFixed(2)} SAR</span></div>
+                <hr style="margin: 15px 0;">
+                <div class="cost-row"><span>📊 Maliyet Toplamı:</span><span>${totalCostSar.toFixed(2)} SAR</span></div>
+                <div class="cost-row"><span>💰 Kar (${profitType === 'percentage' ? '%' : 'Sabit'}):</span><span>${profitDisplay}</span></div>
+                <div class="cost-row total"><span>🎯 KAR DAHİL TOPLAM:</span><span>${totalWithProfitSar.toFixed(2)} SAR</span></div>
+                <div class="cost-row total"><span>🎯 KAR DAHİL TOPLAM (${visaCurrency}):</span><span>${totalWithProfitEur.toFixed(2)} ${visaCurrency}</span></div>
+                <br>
+                <div class="cost-row person"><span>🛏️ Double Oda Kişi Başı:</span><span>${doublePerPerson}</span></div>
+                <div class="cost-row person"><span>🛏️🛏️ Triple Oda Kişi Başı:</span><span>${triplePerPerson}</span></div>
+                <div class="cost-row person"><span>🛏️🛏️🛏️ Quad Oda Kişi Başı:</span><span>${quadPerPerson}</span></div>
+                <hr style="margin: 10px 0;">
+                <div class="cost-row person"><span>👤 GENEL KİŞİ BAŞI (SAR):</span><span>${costPerPersonSar.toFixed(2)} SAR</span></div>
+                <div class="cost-row person"><span>👤 GENEL KİŞİ BAŞI (${visaCurrency}):</span><span>${costPerPersonForeign.toFixed(2)} ${visaCurrency}</span></div>
+            `;
+            
+            // Butonları göster
+            if (paxCount > 0 && totalWithProfitSar > 0) {
+                document.getElementById('pdfButton').style.display = 'block';
+                document.getElementById('excelButton').style.display = 'block';
+            } else {
+                document.getElementById('pdfButton').style.display = 'none';
+                document.getElementById('excelButton').style.display = 'none';
+            }
+        } catch (error) {
+            console.error('Hesaplama hatası:', error);
+        }
+    }
+        
+        // PDF oluşturma fonksiyonu
+        function generatePDF() {
+            const reportDate = new Date().toLocaleDateString('tr-TR');
+            
+            const reportText = `
+UMRE/HAC MALİYET HESAPLAMA RAPORU
+
+Hazırlayan: Ercan Belül
+Rapor Tarihi: ${reportDate}
+Döviz Kuru: 1 ${calculationData.visaCurrency} = ${calculationData.exchangeRate} SAR
+
+GRUP BİLGİLERİ:
+• Grup Adı: ${calculationData.groupName || 'Belirtilmedi'}
+• Grup Lideri: ${calculationData.groupLeader || 'Belirtilmedi'}
+
+SEYAHAT BİLGİLERİ:
+• Kişi Sayısı: ${calculationData.paxCount} kişi
+• Oda Dağılımı: ${calculationData.doubleRooms}×Double + ${calculationData.tripleRooms}×Triple + ${calculationData.quadRooms}×Quad
+• Seyahat Tarihi: ${calculationData.travelStartDate || 'Belirtilmedi'} - ${calculationData.travelEndDate || 'Belirtilmedi'}
+• Toplam Gece: ${calculationData.totalNights} gece
+
+OTEL BİLGİLERİ:
+• Makkah Otel: ${calculationData.makkahHotelName || 'Belirtilmedi'}
+• Madinah Otel: ${calculationData.madinahHotelName || 'Belirtilmedi'}
+
+MALİYET DETAYLARI:
+• Vize: ${calculationData.totalVisaCost.toFixed(2)} ${calculationData.visaCurrency} = ${calculationData.visaCostSar.toFixed(2)} SAR
+• Uçak: ${calculationData.totalFlightCost.toFixed(2)} ${calculationData.flightCurrency} = ${calculationData.flightCostSar.toFixed(2)} SAR
+• Otobüs: ${calculationData.totalBusCost.toFixed(2)} ${calculationData.busCurrency} = ${calculationData.busCostSar.toFixed(2)} SAR
+• Otel: ${calculationData.totalHotelSar.toFixed(2)} SAR
+• Yemek: ${(calculationData.makkahMealSar + calculationData.madinahMealSar).toFixed(2)} SAR
+
+TOPLAM:
+• Maliyet Toplamı: ${calculationData.totalCostSar.toFixed(2)} SAR
+• Kar: ${calculationData.profitSar.toFixed(2)} SAR
+• Kar Dahil Toplam: ${calculationData.totalWithProfitSar.toFixed(2)} SAR
+• Genel Kişi Başı: ${calculationData.costPerPersonSar.toFixed(2)} SAR
+
+© 2025 Ercan Belül
+            `;
+            
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(reportText).then(() => {
+                    alert('📋 Rapor kopyalandı!\n\nWhatsApp, Email veya not uygulamasına yapıştırabilirsiniz.');
+                });
+            } else {
+                alert('📄 RAPOR:\n\n' + reportText);
+            }
+        }
+        
+        // Excel'e aktarma fonksiyonu
+        function exportToExcel() {
+            try {
+                const csvData = [
+                    ['Umre Hac Maliyet Hesaplama Raporu'],
+                    ['Hazırlayan: Ercan Belül'],
+                    ['Tarih: ' + new Date().toLocaleDateString('tr-TR')],
+                    [''],
+                    ['GRUP BİLGİLERİ'],
+                    ['Grup Adı', calculationData.groupName || 'Belirtilmedi'],
+                    ['Grup Lideri', calculationData.groupLeader || 'Belirtilmedi'],
+                    [''],
+                    ['SEYAHAT BİLGİLERİ'],
+                    ['Kişi Sayısı', calculationData.paxCount + ' kişi'],
+                    ['Oda Dağılımı', calculationData.doubleRooms + '×Double + ' + calculationData.tripleRooms + '×Triple + ' + calculationData.quadRooms + '×Quad'],
+                    ['Toplam Gece', calculationData.totalNights + ' gece'],
+                    [''],
+                    ['OTEL BİLGİLERİ'],
+                    ['Makkah Otel', calculationData.makkahHotelName || 'Belirtilmedi'],
+                    ['Madinah Otel', calculationData.madinahHotelName || 'Belirtilmedi'],
+                    [''],
+                    ['MALİYET DETAYLARI'],
+                    ['Vize', calculationData.totalVisaCost.toFixed(2) + ' ' + calculationData.visaCurrency + ' = ' + calculationData.visaCostSar.toFixed(2) + ' SAR'],
+                    ['Uçak Bileti', calculationData.totalFlightCost.toFixed(2) + ' ' + calculationData.flightCurrency + ' = ' + calculationData.flightCostSar.toFixed(2) + ' SAR'],
+                    ['Otobüs', calculationData.totalBusCost.toFixed(2) + ' ' + calculationData.busCurrency + ' = ' + calculationData.busCostSar.toFixed(2) + ' SAR'],
+                    ['Otel', calculationData.totalHotelSar.toFixed(2) + ' SAR'],
+                    ['Yemek', (calculationData.makkahMealSar + calculationData.madinahMealSar).toFixed(2) + ' SAR'],
+                    [''],
+                    ['TOPLAM'],
+                    ['Maliyet Toplamı', calculationData.totalCostSar.toFixed(2) + ' SAR'],
+                    ['Kar', calculationData.profitSar.toFixed(2) + ' SAR'],
+                    ['Kar Dahil Toplam', calculationData.totalWithProfitSar.toFixed(2) + ' SAR'],
+                    ['Genel Kişi Başı', calculationData.costPerPersonSar.toFixed(2) + ' SAR'],
+                    [''],
+                    ['© 2025 Ercan Belül']
+                ];
+                
+                const csvString = csvData.map(row => 
+                    row.map(cell => 
+                        typeof cell === 'string' && cell.includes(',') ? `"${cell}"` : cell
+                    ).join(',')
+                ).join('\n');
+                
+                const bom = '\uFEFF';
+                const csvWithBom = bom + csvString;
+                
+                const blob = new Blob([csvWithBom], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                
+                if (link.download !== undefined) {
+                    const url = URL.createObjectURL(blob);
+                    link.setAttribute('href', url);
+                    link.setAttribute('download', `Umre_Hac_Raporu_${new Date().toLocaleDateString('tr-TR').replace(/\./g, '_')}.csv`);
+                    link.style.visibility = 'hidden';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                } else {
+                    if (navigator.clipboard) {
+                        navigator.clipboard.writeText(csvString).then(() => {
+                            alert('📊 Excel verileri kopyalandı!\n\nExcel açıp yapıştırın (Ctrl+V).');
+                        });
+                    } else {
+                        alert('📊 Excel verileri:\n\n' + csvString);
+                    }
+                }
+                
+            } catch (error) {
+                alert('Excel dosyası oluşturulamadı. Lütfen tekrar deneyin.');
+            }
+        }
+        
+        // Sıfırlama fonksiyonu
+        function resetForm() {
+            // Tüm input'ları temizle
+            const inputs = document.querySelectorAll('input[type="text"], input[type="number"], input[type="date"]');
+            inputs.forEach(input => {
+                input.value = '';
+            });
+            
+            // Dropdown'ları varsayılana döndür
+            document.getElementById('visaCurrency').value = 'EUR';
+            document.getElementById('flightCurrency').value = 'EUR';
+            document.getElementById('busCurrency').value = 'EUR';
+            document.getElementById('busType').value = 'standard';
+            document.getElementById('makkahMealType').value = 'HB';
+            document.getElementById('madinahMealType').value = 'HB';
+            document.getElementById('profitType').value = 'percentage';
+            document.getElementById('profitCurrency').value = 'EUR';
+            document.getElementById('currencyType').value = 'EUR';
+            
+            // Gece sayılarını sıfırla
+            document.getElementById('makkahNights').textContent = '0 gece';
+            document.getElementById('madinahNights').textContent = '0 gece';
+            document.getElementById('makkahTotal').textContent = '0 SAR';
+            document.getElementById('madinahTotal').textContent = '0 SAR';
+            
+            // Tarih bilgilerini sıfırla
+            document.getElementById('daysUntilTravel').textContent = 'Tarih seçin';
+            document.getElementById('totalTravelDays').textContent = '0 gün';
+            
+            // Kur sembolünü güncelle
+            document.getElementById('currencySymbol').textContent = 'EUR';
+            document.getElementById('currencyIcon').textContent = '💶';
+            
+            // Kar label'ını güncelle
+            document.getElementById('profitLabel').textContent = 'Kar Yüzdesi (%)';
+            document.getElementById('profitValue').placeholder = 'Örn: 15';
+            
+            // Kur durumunu sıfırla
+            document.getElementById('exchangeRateStatus').textContent = 'Güncel kurlar için "Anlık Kur Güncelle" butonuna tıklayın';
+            document.getElementById('exchangeRateStatus').style.color = '#666';
+            
+            // Sonuçları temizle
+            document.getElementById('resultContent').innerHTML = '<div class="cost-row"><span>Hesaplama için yukarıdaki bilgileri doldurun</span></div>';
+            
+            // Butonları gizle
+            document.getElementById('pdfButton').style.display = 'none';
+            document.getElementById('excelButton').style.display = 'none';
+            
+            // Global değişkeni temizle
+            calculationData = {};
+        }
+    </script>
+</body>
+</html>
                 document.getElementById('makkahNights').textContent = nights > 0 ? nights + ' gece' : '0 gece';
             }
             
