@@ -67,7 +67,7 @@
         </div>
         
         <!-- Uçak Bileti Maliyetleri -->
-        <div class="section airline-section">
+        <div class="section">
             <h3>✈️ UÇAK BİLETİ MALİYETLERİ</h3>
             <div class="form-row">
                 <div class="form-group">
@@ -184,6 +184,34 @@
             </div>
         </div>
         
+        <!-- Kar Ekleme -->
+        <div class="section" style="background: #e8f5e8; border-left-color: #4CAF50;">
+            <h3 style="color: #4CAF50;">💰 KAR EKLEME</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Kar Türü</label>
+                    <select id="profitType" onchange="updateProfitLabel(); calculateAll()">
+                        <option value="percentage">📊 Yüzde (%)</option>
+                        <option value="fixed">💵 Sabit Tutar</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label id="profitLabel">Kar Yüzdesi (%)</label>
+                    <input type="number" id="profitValue" placeholder="Örn: 15" value="" step="0.01" onchange="calculateAll()">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Kar Para Birimi</label>
+                    <select id="profitCurrency" onchange="calculateAll()">
+                        <option value="EUR">💶 EUR (Euro)</option>
+                        <option value="USD">💵 USD (Dolar)</option>
+                        <option value="SAR">🏛️ SAR (Riyal)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
         <!-- Kur Bilgileri -->
         <div class="section">
             <h3>KUR BİLGİLERİ</h3>
@@ -280,6 +308,21 @@
             calculateAll();
         }
         
+        // Kar türü değiştiğinde label'ı güncelle
+        function updateProfitLabel() {
+            const profitType = document.getElementById('profitType').value;
+            const profitLabel = document.getElementById('profitLabel');
+            const profitValue = document.getElementById('profitValue');
+            
+            if (profitType === 'percentage') {
+                profitLabel.textContent = 'Kar Yüzdesi (%)';
+                profitValue.placeholder = 'Örn: 15';
+            } else {
+                profitLabel.textContent = 'Kar Tutarı';
+                profitValue.placeholder = 'Örn: 500';
+            }
+        }
+        
         // Kur sembolünü güncelle
         function updateCurrencySymbol() {
             console.log('updateCurrencySymbol çalışıyor');
@@ -347,7 +390,33 @@
             const totalCostSar = visaCostSar + flightCostSar + totalHotelSar + totalMealSar;
             const totalCostEur = totalCostSar / exchangeRate;
             
-            const costPerPersonSar = totalCostSar / paxCount;
+            // Kar hesaplama
+            const profitType = document.getElementById('profitType').value;
+            const profitValue = parseFloat(document.getElementById('profitValue').value) || 0;
+            const profitCurrency = document.getElementById('profitCurrency').value;
+            
+            let profitSar = 0;
+            let profitOriginal = 0;
+            
+            if (profitType === 'percentage') {
+                // Yüzde kar
+                profitSar = totalCostSar * (profitValue / 100);
+                profitOriginal = profitSar / exchangeRate;
+            } else {
+                // Sabit kar
+                profitOriginal = profitValue;
+                if (profitCurrency === 'SAR') {
+                    profitSar = profitValue;
+                } else {
+                    profitSar = profitValue * exchangeRate;
+                }
+            }
+            
+            // Kâr dahil toplam
+            const totalWithProfitSar = totalCostSar + profitSar;
+            const totalWithProfitEur = totalWithProfitSar / exchangeRate;
+            
+            const costPerPersonSar = totalWithProfitSar / paxCount;
             const costPerPersonForeign = costPerPersonSar / exchangeRate;
             
             // Global değişkene kaydet (PDF için)
@@ -357,7 +426,10 @@
                 flightCost, flightCurrency, totalFlightCost, flightCostSar, airlineName,
                 totalHotelSar, makkahTotal, madinahTotal,
                 makkahMealSar, madinahMealSar, makkahMealType, madinahMealType,
-                totalCostSar, totalCostEur, costPerPersonSar, costPerPersonForeign,
+                totalCostSar, totalCostEur, 
+                profitType, profitValue, profitCurrency, profitSar, profitOriginal,
+                totalWithProfitSar, totalWithProfitEur,
+                costPerPersonSar, costPerPersonForeign,
                 exchangeRate
             };
             
@@ -365,6 +437,13 @@
             
             // Sonuçları göster
             let airlineDisplay = airlineName ? ` (${airlineName})` : '';
+            let profitDisplay = '';
+            
+            if (profitType === 'percentage') {
+                profitDisplay = `${profitValue}% = ${profitSar.toFixed(2)} SAR`;
+            } else {
+                profitDisplay = `${profitValue.toFixed(2)} ${profitCurrency} = ${profitSar.toFixed(2)} SAR`;
+            }
             
             document.getElementById('resultContent').innerHTML = `
                 <div class="cost-row"><span>👥 Kişi Sayısı:</span><span>${paxCount} kişi</span></div>
@@ -375,15 +454,17 @@
                 <div class="cost-row"><span>🕋 Mekke Yemek (${makkahMealType}):</span><span>${makkahMealSar.toFixed(2)} SAR</span></div>
                 <div class="cost-row"><span>🕌 Medine Yemek (${madinahMealType}):</span><span>${madinahMealSar.toFixed(2)} SAR</span></div>
                 <hr style="margin: 15px 0;">
-                <div class="cost-row total"><span>💰 TOPLAM MALİYET:</span><span>${totalCostSar.toFixed(2)} SAR</span></div>
-                <div class="cost-row total"><span>💰 TOPLAM (${visaCurrency}):</span><span>${totalCostEur.toFixed(2)} ${visaCurrency}</span></div>
+                <div class="cost-row"><span>📊 Maliyet Toplamı:</span><span>${totalCostSar.toFixed(2)} SAR</span></div>
+                <div class="cost-row"><span>💰 Kar (${profitType === 'percentage' ? '%' : 'Sabit'}):</span><span>${profitDisplay}</span></div>
+                <div class="cost-row total"><span>🎯 KAR DAHİL TOPLAM:</span><span>${totalWithProfitSar.toFixed(2)} SAR</span></div>
+                <div class="cost-row total"><span>🎯 KAR DAHİL TOPLAM (${visaCurrency}):</span><span>${totalWithProfitEur.toFixed(2)} ${visaCurrency}</span></div>
                 <br>
                 <div class="cost-row person"><span>👤 KİŞİ BAŞI (SAR):</span><span>${costPerPersonSar.toFixed(2)} SAR</span></div>
                 <div class="cost-row person"><span>👤 KİŞİ BAŞI (${visaCurrency}):</span><span>${costPerPersonForeign.toFixed(2)} ${visaCurrency}</span></div>
             `;
             
             // PDF butonunu göster
-            if (paxCount > 0 && totalCostSar > 0) {
+            if (paxCount > 0 && totalWithProfitSar > 0) {
                 document.getElementById('pdfButton').style.display = 'block';
             } else {
                 document.getElementById('pdfButton').style.display = 'none';
@@ -412,9 +493,12 @@ MALİYET DETAYLARI:
 • Otel: ${calculationData.totalHotelSar.toFixed(2)} SAR
 • Yemek: ${(calculationData.makkahMealSar + calculationData.madinahMealSar).toFixed(2)} SAR
 
+MALIYET TOPLAMI: ${calculationData.totalCostSar.toFixed(2)} SAR
+KAR: ${calculationData.profitSar.toFixed(2)} SAR (${calculationData.profitType === 'percentage' ? calculationData.profitValue + '%' : calculationData.profitValue + ' ' + calculationData.profitCurrency})
+
 TOPLAM:
-• ${calculationData.totalCostSar.toFixed(2)} SAR
-• ${calculationData.totalCostEur.toFixed(2)} ${calculationData.visaCurrency}
+• ${calculationData.totalWithProfitSar.toFixed(2)} SAR
+• ${calculationData.totalWithProfitEur.toFixed(2)} ${calculationData.visaCurrency}
 • Kişi Başı: ${calculationData.costPerPersonSar.toFixed(2)} SAR
 
 © 2025 Ercan Belül
@@ -448,6 +532,7 @@ TOPLAM:
             document.getElementById('makkahMealCost').value = '';
             document.getElementById('madinahMealCost').value = '';
             document.getElementById('exchangeRate').value = '';
+            document.getElementById('profitValue').value = '';
             
             // Dropdown'ları varsayılana döndür
             document.getElementById('visaCurrency').value = 'EUR';
@@ -455,6 +540,8 @@ TOPLAM:
             document.getElementById('makkahMealType').value = 'HB';
             document.getElementById('madinahMealType').value = 'HB';
             document.getElementById('currencyType').value = 'EUR';
+            document.getElementById('profitType').value = 'percentage';
+            document.getElementById('profitCurrency').value = 'EUR';
             
             // Gece sayılarını sıfırla
             document.getElementById('makkahNights').textContent = '0 gece';
@@ -465,6 +552,10 @@ TOPLAM:
             // Kur sembolünü güncelle
             document.getElementById('currencySymbol').textContent = 'EUR';
             document.getElementById('currencyIcon').textContent = '💶';
+            
+            // Kar label'ını güncelle
+            document.getElementById('profitLabel').textContent = 'Kar Yüzdesi (%)';
+            document.getElementById('profitValue').placeholder = 'Örn: 15';
             
             // Sonuçları temizle
             document.getElementById('resultContent').innerHTML = '<div class="cost-row"><span>Hesaplama için yukarıdaki bilgileri doldurun</span></div>';
