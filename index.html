@@ -48,6 +48,63 @@
                     <input type="text" id="groupName" placeholder="Örn: Ankara Umre Grubu" value="" onchange="calculateAll()">
                 </div>
                 <div class="form-group">
+                    <label>Ülke</label>
+                    <select id="countryCode" onchange="calculateAll()">
+                        <option value="">Ülke Seçin</option>
+                        <optgroup label="🇹🇷 Türkiye ve Komşular">
+                            <option value="TUR">🇹🇷 Türkiye (TUR)</option>
+                            <option value="AZE">🇦🇿 Azerbaycan (AZE)</option>
+                        </optgroup>
+                        <optgroup label="🇪🇺 Avrupa Ülkeleri">
+                            <option value="DEU">🇩🇪 Almanya (DEU)</option>
+                            <option value="AUT">🇦🇹 Avusturya (AUT)</option>
+                            <option value="BEL">🇧🇪 Belçika (BEL)</option>
+                            <option value="BGR">🇧🇬 Bulgaristan (BGR)</option>
+                            <option value="HRV">🇭🇷 Hırvatistan (HRV)</option>
+                            <option value="CYP">🇨🇾 Kıbrıs (CYP)</option>
+                            <option value="CZE">🇨🇿 Çekya (CZE)</option>
+                            <option value="DNK">🇩🇰 Danimarka (DNK)</option>
+                            <option value="EST">🇪🇪 Estonya (EST)</option>
+                            <option value="FIN">🇫🇮 Finlandiya (FIN)</option>
+                            <option value="FRA">🇫🇷 Fransa (FRA)</option>
+                            <option value="GRC">🇬🇷 Yunanistan (GRC)</option>
+                            <option value="HUN">🇭🇺 Macaristan (HUN)</option>
+                            <option value="IRL">🇮🇪 İrlanda (IRL)</option>
+                            <option value="ITA">🇮🇹 İtalya (ITA)</option>
+                            <option value="LVA">🇱🇻 Letonya (LVA)</option>
+                            <option value="LTU">🇱🇹 Litvanya (LTU)</option>
+                            <option value="LUX">🇱🇺 Lüksemburg (LUX)</option>
+                            <option value="MLT">🇲🇹 Malta (MLT)</option>
+                            <option value="NLD">🇳🇱 Hollanda (NLD)</option>
+                            <option value="POL">🇵🇱 Polonya (POL)</option>
+                            <option value="PRT">🇵🇹 Portekiz (PRT)</option>
+                            <option value="ROU">🇷🇴 Romanya (ROU)</option>
+                            <option value="SVK">🇸🇰 Slovakya (SVK)</option>
+                            <option value="SVN">🇸🇮 Slovenya (SVN)</option>
+                            <option value="ESP">🇪🇸 İspanya (ESP)</option>
+                            <option value="SWE">🇸🇪 İsveç (SWE)</option>
+                            <option value="GBR">🇬🇧 İngiltere (GBR)</option>
+                            <option value="NOR">🇳🇴 Norveç (NOR)</option>
+                            <option value="CHE">🇨🇭 İsviçre (CHE)</option>
+                        </optgroup>
+                        <optgroup label="🌍 Amerika Kıtası">
+                            <option value="USA">🇺🇸 Amerika (USA)</option>
+                            <option value="CAN">🇨🇦 Kanada (CAN)</option>
+                        </optgroup>
+                        <optgroup label="🌏 Diğer Ülkeler">
+                            <option value="AUS">🇦🇺 Avustralya (AUS)</option>
+                            <option value="JPN">🇯🇵 Japonya (JPN)</option>
+                            <option value="KOR">🇰🇷 Güney Kore (KOR)</option>
+                            <option value="SGP">🇸🇬 Singapur (SGP)</option>
+                            <option value="ARE">🇦🇪 BAE (ARE)</option>
+                            <option value="QAT">🇶🇦 Katar (QAT)</option>
+                            <option value="KWT">🇰🇼 Kuveyt (KWT)</option>
+                        </optgroup>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
                     <label>Grup Lideri</label>
                     <input type="text" id="groupLeader" placeholder="Örn: Ahmet Yılmaz" value="" onchange="calculateAll()">
                 </div>
@@ -77,8 +134,8 @@
         <div class="section">
             <h3>KİŞİ SAYISI</h3>
             <div class="form-group">
-                <label>Kaç kişi seyahat edecek?</label>
-                <input type="number" id="paxCount" placeholder="Örn: 4" value="" min="1" onchange="calculateAll()">
+                <label>Toplam Kişi Sayısı (Otomatik Hesaplanır)</label>
+                <input type="number" id="paxCount" placeholder="Oda tiplerinden hesaplanacak" value="" min="1" readonly style="background: #f0f0f0;">
             </div>
         </div>
         
@@ -95,6 +152,7 @@
                     <select id="visaCurrency" onchange="calculateAll()">
                         <option value="EUR">💶 EUR (Euro)</option>
                         <option value="USD">💵 USD (Dolar)</option>
+                        <option value="SAR">🏛️ SAR (Riyal)</option>
                     </select>
                 </div>
             </div>
@@ -155,7 +213,26 @@
         
         <!-- Otel Rezervasyonları -->
         <div class="section">
-            <h3>OTEL REZERVASYONLARI</h3>
+            <h3>OTEL REZERVASYONLARI VE ODA TİPLERİ</h3>
+            
+            <!-- Oda Tipleri -->
+            <div style="margin-bottom: 20px; background: #e3f2fd; padding: 15px; border-radius: 8px;">
+                <h4 style="color: #1976D2; margin-bottom: 15px;">🛏️ ODA TİPLERİ VE SAYILARI</h4>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>🛏️ Double Oda (2 kişi)</label>
+                        <input type="number" id="doubleRooms" placeholder="Oda sayısı" value="" min="0" onchange="updateTotalPax()">
+                    </div>
+                    <div class="form-group">
+                        <label>🛏️🛏️ Triple Oda (3 kişi)</label>
+                        <input type="number" id="tripleRooms" placeholder="Oda sayısı" value="" min="0" onchange="updateTotalPax()">
+                    </div>
+                    <div class="form-group">
+                        <label>🛏️🛏️🛏️ Quad Oda (4 kişi)</label>
+                        <input type="number" id="quadRooms" placeholder="Oda sayısı" value="" min="0" onchange="updateTotalPax()">
+                    </div>
+                </div>
+            </div>
             
             <!-- Makkah Oteli -->
             <div style="margin-bottom: 20px;">
@@ -175,9 +252,19 @@
                         <label>Çıkış Tarihi</label>
                         <input type="date" id="makkahCheckOut" onchange="calculateNights()">
                     </div>
+                </div>
+                <div class="form-row">
                     <div class="form-group">
-                        <label>Gecelik Fiyat (SAR)</label>
-                        <input type="number" id="makkahPrice" placeholder="Örn: 725" value="" step="0.01" onchange="calculateHotelCosts()">
+                        <label>🛏️ Double Oda Fiyatı (SAR/gece)</label>
+                        <input type="number" id="makkahDoublePrice" placeholder="Örn: 800" value="" step="0.01" onchange="calculateHotelCosts()">
+                    </div>
+                    <div class="form-group">
+                        <label>🛏️🛏️ Triple Oda Fiyatı (SAR/gece)</label>
+                        <input type="number" id="makkahTriplePrice" placeholder="Örn: 1000" value="" step="0.01" onchange="calculateHotelCosts()">
+                    </div>
+                    <div class="form-group">
+                        <label>🛏️🛏️🛏️ Quad Oda Fiyatı (SAR/gece)</label>
+                        <input type="number" id="makkahQuadPrice" placeholder="Örn: 1200" value="" step="0.01" onchange="calculateHotelCosts()">
                     </div>
                 </div>
                 <div class="form-row">
@@ -204,9 +291,19 @@
                         <label>Çıkış Tarihi</label>
                         <input type="date" id="madinahCheckOut" onchange="calculateNights()">
                     </div>
+                </div>
+                <div class="form-row">
                     <div class="form-group">
-                        <label>Gecelik Fiyat (SAR)</label>
-                        <input type="number" id="madinahPrice" placeholder="Örn: 440" value="" step="0.01" onchange="calculateHotelCosts()">
+                        <label>🛏️ Double Oda Fiyatı (SAR/gece)</label>
+                        <input type="number" id="madinahDoublePrice" placeholder="Örn: 600" value="" step="0.01" onchange="calculateHotelCosts()">
+                    </div>
+                    <div class="form-group">
+                        <label>🛏️🛏️ Triple Oda Fiyatı (SAR/gece)</label>
+                        <input type="number" id="madinahTriplePrice" placeholder="Örn: 750" value="" step="0.01" onchange="calculateHotelCosts()">
+                    </div>
+                    <div class="form-group">
+                        <label>🛏️🛏️🛏️ Quad Oda Fiyatı (SAR/gece)</label>
+                        <input type="number" id="madinahQuadPrice" placeholder="Örn: 900" value="" step="0.01" onchange="calculateHotelCosts()">
                     </div>
                 </div>
                 <div class="form-row">
@@ -377,19 +474,51 @@
         function calculateHotelCosts() {
             console.log('calculateHotelCosts çalışıyor');
             
-            // Makkah toplam hesaplama
+            // Oda sayıları
+            const doubleRooms = parseInt(document.getElementById('doubleRooms').value) || 0;
+            const tripleRooms = parseInt(document.getElementById('tripleRooms').value) || 0;
+            const quadRooms = parseInt(document.getElementById('quadRooms').value) || 0;
+            
+            // Makkah gece sayısı ve fiyatlar
             const makkahNightsText = document.getElementById('makkahNights').textContent;
             const makkahNights = parseInt(makkahNightsText.split(' ')[0]) || 0;
-            const makkahPrice = parseFloat(document.getElementById('makkahPrice').value) || 0;
-            const makkahTotal = makkahNights * makkahPrice;
+            const makkahDoublePrice = parseFloat(document.getElementById('makkahDoublePrice').value) || 0;
+            const makkahTriplePrice = parseFloat(document.getElementById('makkahTriplePrice').value) || 0;
+            const makkahQuadPrice = parseFloat(document.getElementById('makkahQuadPrice').value) || 0;
+            
+            // Makkah toplam hesaplama
+            const makkahTotal = (doubleRooms * makkahDoublePrice * makkahNights) + 
+                              (tripleRooms * makkahTriplePrice * makkahNights) + 
+                              (quadRooms * makkahQuadPrice * makkahNights);
+            
             document.getElementById('makkahTotal').textContent = makkahTotal.toFixed(2) + ' SAR';
             
-            // Madinah toplam hesaplama
+            // Madinah gece sayısı ve fiyatlar
             const madinahNightsText = document.getElementById('madinahNights').textContent;
             const madinahNights = parseInt(madinahNightsText.split(' ')[0]) || 0;
-            const madinahPrice = parseFloat(document.getElementById('madinahPrice').value) || 0;
-            const madinahTotal = madinahNights * madinahPrice;
+            const madinahDoublePrice = parseFloat(document.getElementById('madinahDoublePrice').value) || 0;
+            const madinahTriplePrice = parseFloat(document.getElementById('madinahTriplePrice').value) || 0;
+            const madinahQuadPrice = parseFloat(document.getElementById('madinahQuadPrice').value) || 0;
+            
+            // Madinah toplam hesaplama
+            const madinahTotal = (doubleRooms * madinahDoublePrice * madinahNights) + 
+                                (tripleRooms * madinahTriplePrice * madinahNights) + 
+                                (quadRooms * madinahQuadPrice * madinahNights);
+            
             document.getElementById('madinahTotal').textContent = madinahTotal.toFixed(2) + ' SAR';
+            
+            calculateAll();
+        }
+        
+        // Toplam kişi sayısını güncelle
+        function updateTotalPax() {
+            const doubleRooms = parseInt(document.getElementById('doubleRooms').value) || 0;
+            const tripleRooms = parseInt(document.getElementById('tripleRooms').value) || 0;
+            const quadRooms = parseInt(document.getElementById('quadRooms').value) || 0;
+            
+            const totalPax = (doubleRooms * 2) + (tripleRooms * 3) + (quadRooms * 4);
+            
+            document.getElementById('paxCount').value = totalPax;
             
             calculateAll();
         }
@@ -551,9 +680,9 @@
             const madinahMealCost = parseFloat(document.getElementById('madinahMealCost').value) || 0;
             const madinahMealType = document.getElementById('madinahMealType').value;
             
-            // Hesaplamalar
+            // Vize hesaplama (SAR desteği ile)
             const totalVisaCost = paxCount * visaCost;
-            const visaCostSar = totalVisaCost * exchangeRate;
+            const visaCostSar = visaCurrency === 'SAR' ? totalVisaCost : totalVisaCost * exchangeRate;
             
             const totalFlightCost = paxCount * flightCost;
             const flightCostSar = totalFlightCost * exchangeRate;
@@ -600,8 +729,13 @@
             // Global değişkene kaydet (PDF için)
             calculationData = {
                 paxCount, totalNights, makkahNights, madinahNights,
+                doubleRooms: parseInt(document.getElementById('doubleRooms').value) || 0,
+                tripleRooms: parseInt(document.getElementById('tripleRooms').value) || 0,
+                quadRooms: parseInt(document.getElementById('quadRooms').value) || 0,
                 groupName: document.getElementById('groupName').value,
                 groupLeader: document.getElementById('groupLeader').value,
+                countryCode: document.getElementById('countryCode').value,
+                countryName: document.getElementById('countryCode').selectedOptions[0]?.text || '',
                 makkahHotelName: document.getElementById('makkahHotelName').value,
                 madinahHotelName: document.getElementById('madinahHotelName').value,
                 visaCost, visaCurrency, totalVisaCost, visaCostSar,
@@ -834,6 +968,15 @@ TOPLAM:
             document.getElementById('groupLeader').value = '';
             document.getElementById('makkahHotelName').value = '';
             document.getElementById('madinahHotelName').value = '';
+            document.getElementById('doubleRooms').value = '';
+            document.getElementById('tripleRooms').value = '';
+            document.getElementById('quadRooms').value = '';
+            document.getElementById('makkahDoublePrice').value = '';
+            document.getElementById('makkahTriplePrice').value = '';
+            document.getElementById('makkahQuadPrice').value = '';
+            document.getElementById('madinahDoublePrice').value = '';
+            document.getElementById('madinahTriplePrice').value = '';
+            document.getElementById('madinahQuadPrice').value = '';
             
             // Dropdown'ları varsayılana döndür
             document.getElementById('visaCurrency').value = 'EUR';
