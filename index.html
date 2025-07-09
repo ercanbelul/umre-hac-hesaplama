@@ -221,12 +221,12 @@
                     </div>
                 </div>
                 
-                <!-- Oda Tipleri ve Fiyatları -->
-                <h4 style="color: #1976D2; margin: 15px 0 10px 0;">🛏️ ODA TİPLERİ, SAYILARI VE FİYATLARI</h4>
+                <!-- Makkah Oda Tipleri ve Fiyatları -->
+                <h4 style="color: #1976D2; margin: 15px 0 10px 0;">🛏️ MAKKAH ODA TİPLERİ VE FİYATLARI</h4>
                 <div class="form-row">
                     <div class="form-group">
                         <label>🛏️ Double Oda Sayısı (2 kişi)</label>
-                        <input type="number" id="doubleRooms" placeholder="Oda sayısı" value="" min="0">
+                        <input type="number" id="makkahDoubleRooms" placeholder="Oda sayısı" value="" min="0">
                     </div>
                     <div class="form-group">
                         <label>🛏️ Double Oda Fiyatı (SAR/gece)</label>
@@ -236,7 +236,7 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label>🛏️🛏️ Triple Oda Sayısı (3 kişi)</label>
-                        <input type="number" id="tripleRooms" placeholder="Oda sayısı" value="" min="0">
+                        <input type="number" id="makkahTripleRooms" placeholder="Oda sayısı" value="" min="0">
                     </div>
                     <div class="form-group">
                         <label>🛏️🛏️ Triple Oda Fiyatı (SAR/gece)</label>
@@ -246,7 +246,7 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label>🛏️🛏️🛏️ Quad Oda Sayısı (4 kişi)</label>
-                        <input type="number" id="quadRooms" placeholder="Oda sayısı" value="" min="0">
+                        <input type="number" id="makkahQuadRooms" placeholder="Oda sayısı" value="" min="0">
                     </div>
                     <div class="form-group">
                         <label>🛏️🛏️🛏️ Quad Oda Fiyatı (SAR/gece)</label>
@@ -278,14 +278,33 @@
                         <input type="date" id="madinahCheckOut">
                     </div>
                 </div>
+                
+                <!-- Madinah Oda Tipleri ve Fiyatları -->
+                <h4 style="color: #1976D2; margin: 15px 0 10px 0;">🛏️ MADİNAH ODA TİPLERİ VE FİYATLARI</h4>
                 <div class="form-row">
+                    <div class="form-group">
+                        <label>🛏️ Double Oda Sayısı (2 kişi)</label>
+                        <input type="number" id="madinahDoubleRooms" placeholder="Oda sayısı" value="" min="0">
+                    </div>
                     <div class="form-group">
                         <label>🛏️ Double Oda Fiyatı (SAR/gece)</label>
                         <input type="number" id="madinahDoublePrice" placeholder="Örn: 600" value="" step="0.01">
                     </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>🛏️🛏️ Triple Oda Sayısı (3 kişi)</label>
+                        <input type="number" id="madinahTripleRooms" placeholder="Oda sayısı" value="" min="0">
+                    </div>
                     <div class="form-group">
                         <label>🛏️🛏️ Triple Oda Fiyatı (SAR/gece)</label>
                         <input type="number" id="madinahTriplePrice" placeholder="Örn: 750" value="" step="0.01">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>🛏️🛏️🛏️ Quad Oda Sayısı (4 kişi)</label>
+                        <input type="number" id="madinahQuadRooms" placeholder="Oda sayısı" value="" min="0">
                     </div>
                     <div class="form-group">
                         <label>🛏️🛏️🛏️ Quad Oda Fiyatı (SAR/gece)</label>
@@ -431,10 +450,15 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Sayfa yüklendi - Event listener sistemi başlatılıyor');
             
-            // Oda sayıları
-            document.getElementById('doubleRooms').addEventListener('input', updateTotalPax);
-            document.getElementById('tripleRooms').addEventListener('input', updateTotalPax);
-            document.getElementById('quadRooms').addEventListener('input', updateTotalPax);
+            // Makkah oda sayıları
+            document.getElementById('makkahDoubleRooms').addEventListener('input', updateTotalPax);
+            document.getElementById('makkahTripleRooms').addEventListener('input', updateTotalPax);
+            document.getElementById('makkahQuadRooms').addEventListener('input', updateTotalPax);
+            
+            // Madinah oda sayıları  
+            document.getElementById('madinahDoubleRooms').addEventListener('input', updateTotalPax);
+            document.getElementById('madinahTripleRooms').addEventListener('input', updateTotalPax);
+            document.getElementById('madinahQuadRooms').addEventListener('input', updateTotalPax);
             
             // Tarih alanları
             document.getElementById('travelStartDate').addEventListener('change', calculateDateInfo);
@@ -444,13 +468,21 @@
             document.getElementById('madinahCheckIn').addEventListener('change', calculateNights);
             document.getElementById('madinahCheckOut').addEventListener('change', calculateNights);
             
-            // Otel fiyatları
+            // Makkah otel fiyatları
             document.getElementById('makkahDoublePrice').addEventListener('input', calculateHotelCosts);
             document.getElementById('makkahTriplePrice').addEventListener('input', calculateHotelCosts);
             document.getElementById('makkahQuadPrice').addEventListener('input', calculateHotelCosts);
+            document.getElementById('makkahDoubleRooms').addEventListener('input', calculateHotelCosts);
+            document.getElementById('makkahTripleRooms').addEventListener('input', calculateHotelCosts);
+            document.getElementById('makkahQuadRooms').addEventListener('input', calculateHotelCosts);
+            
+            // Madinah otel fiyatları
             document.getElementById('madinahDoublePrice').addEventListener('input', calculateHotelCosts);
             document.getElementById('madinahTriplePrice').addEventListener('input', calculateHotelCosts);
             document.getElementById('madinahQuadPrice').addEventListener('input', calculateHotelCosts);
+            document.getElementById('madinahDoubleRooms').addEventListener('input', calculateHotelCosts);
+            document.getElementById('madinahTripleRooms').addEventListener('input', calculateHotelCosts);
+            document.getElementById('madinahQuadRooms').addEventListener('input', calculateHotelCosts);
             
             // Kar türü
             document.getElementById('profitType').addEventListener('change', updateProfitLabel);
@@ -484,11 +516,23 @@
         // Toplam kişi sayısını güncelle
         function updateTotalPax() {
             console.log('updateTotalPax çalışıyor');
-            const doubleRooms = parseInt(document.getElementById('doubleRooms').value) || 0;
-            const tripleRooms = parseInt(document.getElementById('tripleRooms').value) || 0;
-            const quadRooms = parseInt(document.getElementById('quadRooms').value) || 0;
             
-            const totalPax = (doubleRooms * 2) + (tripleRooms * 3) + (quadRooms * 4);
+            // Makkah oda sayıları
+            const makkahDoubleRooms = parseInt(document.getElementById('makkahDoubleRooms').value) || 0;
+            const makkahTripleRooms = parseInt(document.getElementById('makkahTripleRooms').value) || 0;
+            const makkahQuadRooms = parseInt(document.getElementById('makkahQuadRooms').value) || 0;
+            
+            // Madinah oda sayıları
+            const madinahDoubleRooms = parseInt(document.getElementById('madinahDoubleRooms').value) || 0;
+            const madinahTripleRooms = parseInt(document.getElementById('madinahTripleRooms').value) || 0;
+            const madinahQuadRooms = parseInt(document.getElementById('madinahQuadRooms').value) || 0;
+            
+            // En yüksek oda sayısını al (çünkü grup aynı)
+            const maxDoubleRooms = Math.max(makkahDoubleRooms, madinahDoubleRooms);
+            const maxTripleRooms = Math.max(makkahTripleRooms, madinahTripleRooms);
+            const maxQuadRooms = Math.max(makkahQuadRooms, madinahQuadRooms);
+            
+            const totalPax = (maxDoubleRooms * 2) + (maxTripleRooms * 3) + (maxQuadRooms * 4);
             document.getElementById('paxCount').value = totalPax;
             
             console.log('Toplam kişi sayısı güncellendi:', totalPax);
