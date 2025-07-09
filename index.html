@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Umre Hac Maliyet Hesaplama - by Ercan</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
@@ -21,6 +21,8 @@
         .currency-symbol { font-size: 24px; font-weight: bold; color: #1976D2; }
         button { width: 100%; background: #2E7D32; color: white; padding: 15px; border: none; border-radius: 10px; font-size: 18px; font-weight: bold; margin: 20px 0; cursor: pointer; }
         button:hover { background: #1B5E20; }
+        .pdf-button { background: #D32F2F; margin-top: 10px; }
+        .pdf-button:hover { background: #B71C1C; }
         .result-section { background: #f3e5f5; padding: 20px; border-radius: 10px; margin-top: 20px; }
         .cost-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #ddd; }
         .cost-row.total { font-weight: bold; font-size: 16px; color: #1976D2; }
@@ -204,13 +206,19 @@
             </div>
         </div>
         
-        <button onclick="calculateAll()">💰 HESAPLA</button>
+        <div style="display: flex; gap: 10px;">
+            <button onclick="calculateAll()" style="flex: 1;">💰 HESAPLA</button>
+            <button onclick="resetForm()" style="flex: 1; background: #FF5722;">🔄 SIFIRLA</button>
+        </div>
         
         <div id="result" class="result-section">
             <h3>📊 MALİYET HESAPLAMA SONUCU</h3>
             <div id="resultContent">
                 <div class="cost-row"><span>Hesaplama için yukarıdaki bilgileri doldurun</span></div>
             </div>
+            <button class="pdf-button" onclick="generatePDF()" id="pdfButton" style="display: none;">
+                📋 Rapor Kopyala
+            </button>
         </div>
         
         <div style="text-align: center; margin-top: 20px; color: #666; font-size: 12px;">
@@ -219,8 +227,13 @@
     </div>
     
     <script>
+        // Global değişken
+        let calculationData = {};
+        
         // Tarih değiştiğinde gece sayısını hesapla
         function calculateNights() {
+            console.log('calculateNights çalışıyor');
+            
             // Makkah gece hesaplama
             const makkahCheckIn = document.getElementById('makkahCheckIn').value;
             const makkahCheckOut = document.getElementById('makkahCheckOut').value;
@@ -248,6 +261,8 @@
         
         // Otel maliyetlerini hesapla
         function calculateHotelCosts() {
+            console.log('calculateHotelCosts çalışıyor');
+            
             // Makkah toplam hesaplama
             const makkahNightsText = document.getElementById('makkahNights').textContent;
             const makkahNights = parseInt(makkahNightsText.split(' ')[0]) || 0;
@@ -267,6 +282,8 @@
         
         // Kur sembolünü güncelle
         function updateCurrencySymbol() {
+            console.log('updateCurrencySymbol çalışıyor');
+            
             const currencyType = document.getElementById('currencyType').value;
             const currencySymbol = document.getElementById('currencySymbol');
             const currencyIcon = document.getElementById('currencyIcon');
@@ -283,8 +300,13 @@
         
         // Ana hesaplama fonksiyonu
         function calculateAll() {
+            console.log('calculateAll çalışıyor');
+            
             const paxCount = parseInt(document.getElementById('paxCount').value) || 0;
             const exchangeRate = parseFloat(document.getElementById('exchangeRate').value) || 1;
+            
+            console.log('Kişi sayısı:', paxCount);
+            console.log('Döviz kuru:', exchangeRate);
             
             // Vize bilgileri
             const visaCost = parseFloat(document.getElementById('visaCost').value) || 0;
@@ -328,6 +350,19 @@
             const costPerPersonSar = totalCostSar / paxCount;
             const costPerPersonForeign = costPerPersonSar / exchangeRate;
             
+            // Global değişkene kaydet (PDF için)
+            calculationData = {
+                paxCount, totalNights, makkahNights, madinahNights,
+                visaCost, visaCurrency, totalVisaCost, visaCostSar,
+                flightCost, flightCurrency, totalFlightCost, flightCostSar, airlineName,
+                totalHotelSar, makkahTotal, madinahTotal,
+                makkahMealSar, madinahMealSar, makkahMealType, madinahMealType,
+                totalCostSar, totalCostEur, costPerPersonSar, costPerPersonForeign,
+                exchangeRate
+            };
+            
+            console.log('Toplam maliyet SAR:', totalCostSar);
+            
             // Sonuçları göster
             let airlineDisplay = airlineName ? ` (${airlineName})` : '';
             
@@ -346,10 +381,106 @@
                 <div class="cost-row person"><span>👤 KİŞİ BAŞI (SAR):</span><span>${costPerPersonSar.toFixed(2)} SAR</span></div>
                 <div class="cost-row person"><span>👤 KİŞİ BAŞI (${visaCurrency}):</span><span>${costPerPersonForeign.toFixed(2)} ${visaCurrency}</span></div>
             `;
+            
+            // PDF butonunu göster
+            if (paxCount > 0 && totalCostSar > 0) {
+                document.getElementById('pdfButton').style.display = 'block';
+            } else {
+                document.getElementById('pdfButton').style.display = 'none';
+            }
         }
         
-        // Sayfa yüklendiğinde sadece hesaplama yap, tarihleri boş bırak
+        // PDF oluşturma fonksiyonu - BASİT VERSİYON
+        function generatePDF() {
+            // Basit metin raporu oluştur
+            const today = new Date();
+            const reportDate = today.toLocaleDateString('tr-TR');
+            
+            const reportText = `
+UMRE/HAC MALIYET RAPORU
+Hazırlayan: Ercan Belül
+Tarih: ${reportDate}
+Kur: 1 ${calculationData.visaCurrency} = ${calculationData.exchangeRate} SAR
+
+SEYAHAT BİLGİLERİ:
+• Kişi Sayısı: ${calculationData.paxCount} kişi
+• Toplam Gece: ${calculationData.totalNights} gece
+
+MALİYET DETAYLARI:
+• Vize: ${calculationData.totalVisaCost.toFixed(2)} ${calculationData.visaCurrency} = ${calculationData.visaCostSar.toFixed(2)} SAR
+• Uçak: ${calculationData.totalFlightCost.toFixed(2)} ${calculationData.flightCurrency} = ${calculationData.flightCostSar.toFixed(2)} SAR
+• Otel: ${calculationData.totalHotelSar.toFixed(2)} SAR
+• Yemek: ${(calculationData.makkahMealSar + calculationData.madinahMealSar).toFixed(2)} SAR
+
+TOPLAM:
+• ${calculationData.totalCostSar.toFixed(2)} SAR
+• ${calculationData.totalCostEur.toFixed(2)} ${calculationData.visaCurrency}
+• Kişi Başı: ${calculationData.costPerPersonSar.toFixed(2)} SAR
+
+© 2025 Ercan Belül
+            `;
+            
+            // Kopyala
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(reportText).then(() => {
+                    alert('📋 Rapor kopyalandı!\n\nŞimdi WhatsApp, Email veya not uygulamasına yapıştırabilirsiniz.');
+                });
+            } else {
+                alert('📄 RAPOR:\n\n' + reportText);
+            }
+        }
+        
+        // Sıfırlama fonksiyonu
+        function resetForm() {
+            console.log('Form sıfırlanıyor...');
+            
+            // Tüm input'ları temizle
+            document.getElementById('paxCount').value = '';
+            document.getElementById('visaCost').value = '';
+            document.getElementById('airlineName').value = '';
+            document.getElementById('flightCost').value = '';
+            document.getElementById('makkahCheckIn').value = '';
+            document.getElementById('makkahCheckOut').value = '';
+            document.getElementById('makkahPrice').value = '';
+            document.getElementById('madinahCheckIn').value = '';
+            document.getElementById('madinahCheckOut').value = '';
+            document.getElementById('madinahPrice').value = '';
+            document.getElementById('makkahMealCost').value = '';
+            document.getElementById('madinahMealCost').value = '';
+            document.getElementById('exchangeRate').value = '';
+            
+            // Dropdown'ları varsayılana döndür
+            document.getElementById('visaCurrency').value = 'EUR';
+            document.getElementById('flightCurrency').value = 'EUR';
+            document.getElementById('makkahMealType').value = 'HB';
+            document.getElementById('madinahMealType').value = 'HB';
+            document.getElementById('currencyType').value = 'EUR';
+            
+            // Gece sayılarını sıfırla
+            document.getElementById('makkahNights').textContent = '0 gece';
+            document.getElementById('madinahNights').textContent = '0 gece';
+            document.getElementById('makkahTotal').textContent = '0 SAR';
+            document.getElementById('madinahTotal').textContent = '0 SAR';
+            
+            // Kur sembolünü güncelle
+            document.getElementById('currencySymbol').textContent = 'EUR';
+            document.getElementById('currencyIcon').textContent = '💶';
+            
+            // Sonuçları temizle
+            document.getElementById('resultContent').innerHTML = '<div class="cost-row"><span>Hesaplama için yukarıdaki bilgileri doldurun</span></div>';
+            
+            // PDF butonunu gizle
+            document.getElementById('pdfButton').style.display = 'none';
+            
+            // Global değişkeni temizle
+            calculationData = {};
+            
+            console.log('Form sıfırlandı');
+        }
+        
+        // Sayfa yüklendiğinde hesaplama yap
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('Sayfa yüklendi');
             calculateAll();
         });
     </script>
