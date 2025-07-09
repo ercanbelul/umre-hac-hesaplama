@@ -39,6 +39,21 @@
     <div id="app">
         <h1>Umre Hac Maliyet Hesaplama - by Ercan</h1>
         
+        <!-- Grup Bilgileri -->
+        <div class="section" style="background: #e8f5e8; border-left-color: #4CAF50;">
+            <h3 style="color: #4CAF50;">👥 GRUP BİLGİLERİ</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Grup Adı</label>
+                    <input type="text" id="groupName" placeholder="Örn: Ankara Umre Grubu" value="" onchange="calculateAll()">
+                </div>
+                <div class="form-group">
+                    <label>Grup Lideri</label>
+                    <input type="text" id="groupLeader" placeholder="Örn: Ahmet Yılmaz" value="" onchange="calculateAll()">
+                </div>
+            </div>
+        </div>
+        
         <!-- Seyahat Tarihi -->
         <div class="section" style="background: #fff3e0; border-left-color: #FF9800;">
             <h3 style="color: #FF9800;">🗓️ SEYAHAT TARİHİ</h3>
@@ -145,6 +160,12 @@
             <!-- Makkah Oteli -->
             <div style="margin-bottom: 20px;">
                 <h4>🕋 MAKKAH OTELİ</h4>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Otel Adı</label>
+                        <input type="text" id="makkahHotelName" placeholder="Örn: Hilton Makkah" value="" onchange="calculateAll()">
+                    </div>
+                </div>
                 <div class="hotel-row">
                     <div class="date-group">
                         <label>Giriş Tarihi</label>
@@ -168,6 +189,12 @@
             <!-- Madinah Oteli -->
             <div>
                 <h4>🕌 MADİNAH OTELİ</h4>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Otel Adı</label>
+                        <input type="text" id="madinahHotelName" placeholder="Örn: Movenpick Madinah" value="" onchange="calculateAll()">
+                    </div>
+                </div>
                 <div class="hotel-row">
                     <div class="date-group">
                         <label>Giriş Tarihi</label>
@@ -302,6 +329,9 @@
             </div>
             <button class="pdf-button" onclick="generatePDF()" id="pdfButton" style="display: none;">
                 📋 Rapor Kopyala
+            </button>
+            <button class="pdf-button" onclick="exportToExcel()" id="excelButton" style="display: none; background: #2E7D32; margin-top: 5px;">
+                📊 Excel'e Aktar
             </button>
         </div>
         
@@ -570,9 +600,13 @@
             // Global değişkene kaydet (PDF için)
             calculationData = {
                 paxCount, totalNights, makkahNights, madinahNights,
+                groupName: document.getElementById('groupName').value,
+                groupLeader: document.getElementById('groupLeader').value,
+                makkahHotelName: document.getElementById('makkahHotelName').value,
+                madinahHotelName: document.getElementById('madinahHotelName').value,
                 visaCost, visaCurrency, totalVisaCost, visaCostSar,
                 flightCost, flightCurrency, totalFlightCost, flightCostSar, airlineName,
-                busCost, busType, totalBusCost, busCostSar,
+                busCost, busCurrency, busType, totalBusCost, busCostSar,
                 totalHotelSar, makkahTotal, madinahTotal,
                 makkahMealSar, madinahMealSar, makkahMealType, madinahMealType,
                 totalCostSar, totalCostEur, 
@@ -600,15 +634,21 @@
             }
             
             document.getElementById('resultContent').innerHTML = `
+                <div class="cost-row"><span>👥 Grup Adı:</span><span>${calculationData.groupName || 'Belirtilmedi'}</span></div>
+                <div class="cost-row"><span>👤 Grup Lideri:</span><span>${calculationData.groupLeader || 'Belirtilmedi'}</span></div>
+                <hr style="margin: 10px 0;">
                 <div class="cost-row"><span>🗓️ Seyahat Tarihi:</span><span>${calculationData.travelStartDate || 'Belirtilmedi'} - ${calculationData.travelEndDate || 'Belirtilmedi'}</span></div>
                 <div class="cost-row"><span>⏰ Geri Sayım:</span><span>${calculationData.daysUntilTravel}</span></div>
                 <div class="cost-row"><span>📅 Seyahat Süresi:</span><span>${calculationData.totalTravelDays}</span></div>
+                <hr style="margin: 10px 0;">
+                <div class="cost-row"><span>🕋 Makkah Otel:</span><span>${calculationData.makkahHotelName || 'Belirtilmedi'}</span></div>
+                <div class="cost-row"><span>🕌 Madinah Otel:</span><span>${calculationData.madinahHotelName || 'Belirtilmedi'}</span></div>
                 <hr style="margin: 10px 0;">
                 <div class="cost-row"><span>👥 Kişi Sayısı:</span><span>${paxCount} kişi</span></div>
                 <div class="cost-row"><span>🏨 Toplam Gece:</span><span>${totalNights} gece (Makkah: ${makkahNights}, Madinah: ${madinahNights})</span></div>
                 <div class="cost-row"><span>🛂 Vize Masrafı:</span><span>${totalVisaCost.toFixed(2)} ${visaCurrency} = ${visaCostSar.toFixed(2)} SAR</span></div>
                 <div class="cost-row"><span>✈️ Uçak Bileti${airlineDisplay}:</span><span>${totalFlightCost.toFixed(2)} ${flightCurrency} = ${flightCostSar.toFixed(2)} SAR</span></div>
-                <div class="cost-row"><span>🚌 Otobüs (${busTypeDisplay}):</span><span>${totalBusCost.toFixed(2)} SAR</span></div>
+                <div class="cost-row"><span>🚌 Otobüs (${busTypeDisplay}):</span><span>${totalBusCost.toFixed(2)} ${busCurrency} = ${busCostSar.toFixed(2)} SAR</span></div>
                 <div class="cost-row"><span>🏨 Otel Masrafı:</span><span>${totalHotelSar.toFixed(2)} SAR</span></div>
                 <div class="cost-row"><span>🕋 Mekke Yemek (${makkahMealType}):</span><span>${makkahMealSar.toFixed(2)} SAR</span></div>
                 <div class="cost-row"><span>🕌 Medine Yemek (${madinahMealType}):</span><span>${madinahMealSar.toFixed(2)} SAR</span></div>
@@ -625,8 +665,10 @@
             // PDF butonunu göster
             if (paxCount > 0 && totalWithProfitSar > 0) {
                 document.getElementById('pdfButton').style.display = 'block';
+                document.getElementById('excelButton').style.display = 'block';
             } else {
                 document.getElementById('pdfButton').style.display = 'none';
+                document.getElementById('excelButton').style.display = 'none';
             }
         }
         
@@ -642,6 +684,10 @@ Hazırlayan: Ercan Belül
 Tarih: ${reportDate}
 Kur: 1 ${calculationData.visaCurrency} = ${calculationData.exchangeRate} SAR
 
+GRUP BİLGİLERİ:
+• Grup Adı: ${calculationData.groupName || 'Belirtilmedi'}
+• Grup Lideri: ${calculationData.groupLeader || 'Belirtilmedi'}
+
 SEYAHAT BİLGİLERİ:
 • Kişi Sayısı: ${calculationData.paxCount} kişi
 • Seyahat Tarihi: ${calculationData.travelStartDate || 'Belirtilmedi'} - ${calculationData.travelEndDate || 'Belirtilmedi'}
@@ -649,10 +695,14 @@ SEYAHAT BİLGİLERİ:
 • Seyahat Süresi: ${calculationData.totalTravelDays}
 • Toplam Gece: ${calculationData.totalNights} gece
 
+OTEL BİLGİLERİ:
+• Makkah Otel: ${calculationData.makkahHotelName || 'Belirtilmedi'}
+• Madinah Otel: ${calculationData.madinahHotelName || 'Belirtilmedi'}
+
 MALİYET DETAYLARI:
 • Vize: ${calculationData.totalVisaCost.toFixed(2)} ${calculationData.visaCurrency} = ${calculationData.visaCostSar.toFixed(2)} SAR
 • Uçak: ${calculationData.totalFlightCost.toFixed(2)} ${calculationData.flightCurrency} = ${calculationData.flightCostSar.toFixed(2)} SAR
-• Otobüs: ${calculationData.totalBusCost.toFixed(2)} SAR
+• Otobüs: ${calculationData.totalBusCost.toFixed(2)} ${calculationData.busCurrency} = ${calculationData.busCostSar.toFixed(2)} SAR
 • Otel: ${calculationData.totalHotelSar.toFixed(2)} SAR
 • Yemek: ${(calculationData.makkahMealSar + calculationData.madinahMealSar).toFixed(2)} SAR
 
@@ -674,6 +724,87 @@ TOPLAM:
                 });
             } else {
                 alert('📄 RAPOR:\n\n' + reportText);
+            }
+        }
+        
+        // Excel'e aktarma fonksiyonu
+        function exportToExcel() {
+            try {
+                // CSV formatında veri hazırla
+                const csvData = [
+                    ['Umre Hac Maliyet Hesaplama Raporu'],
+                    ['Hazırlayan: Ercan Belül'],
+                    ['Tarih: ' + new Date().toLocaleDateString('tr-TR')],
+                    [''],
+                    ['GRUP BİLGİLERİ'],
+                    ['Grup Adı', calculationData.groupName || 'Belirtilmedi'],
+                    ['Grup Lideri', calculationData.groupLeader || 'Belirtilmedi'],
+                    [''],
+                    ['SEYAHAT BİLGİLERİ'],
+                    ['Kişi Sayısı', calculationData.paxCount + ' kişi'],
+                    ['Seyahat Tarihi', (calculationData.travelStartDate || 'Belirtilmedi') + ' - ' + (calculationData.travelEndDate || 'Belirtilmedi')],
+                    ['Geri Sayım', calculationData.daysUntilTravel],
+                    ['Toplam Gece', calculationData.totalNights + ' gece'],
+                    [''],
+                    ['OTEL BİLGİLERİ'],
+                    ['Makkah Otel', calculationData.makkahHotelName || 'Belirtilmedi'],
+                    ['Madinah Otel', calculationData.madinahHotelName || 'Belirtilmedi'],
+                    [''],
+                    ['MALİYET DETAYLARI'],
+                    ['Vize', calculationData.totalVisaCost.toFixed(2) + ' ' + calculationData.visaCurrency + ' = ' + calculationData.visaCostSar.toFixed(2) + ' SAR'],
+                    ['Uçak Bileti', calculationData.totalFlightCost.toFixed(2) + ' ' + calculationData.flightCurrency + ' = ' + calculationData.flightCostSar.toFixed(2) + ' SAR'],
+                    ['Otobüs', calculationData.totalBusCost.toFixed(2) + ' ' + calculationData.busCurrency + ' = ' + calculationData.busCostSar.toFixed(2) + ' SAR'],
+                    ['Otel', calculationData.totalHotelSar.toFixed(2) + ' SAR'],
+                    ['Yemek', (calculationData.makkahMealSar + calculationData.madinahMealSar).toFixed(2) + ' SAR'],
+                    [''],
+                    ['TOPLAM'],
+                    ['Maliyet Toplamı', calculationData.totalCostSar.toFixed(2) + ' SAR'],
+                    ['Kar', calculationData.profitSar.toFixed(2) + ' SAR'],
+                    ['Kar Dahil Toplam', calculationData.totalWithProfitSar.toFixed(2) + ' SAR'],
+                    ['Kişi Başı', calculationData.costPerPersonSar.toFixed(2) + ' SAR'],
+                    [''],
+                    ['© 2025 Ercan Belül']
+                ];
+                
+                // CSV stringine dönüştür
+                const csvString = csvData.map(row => 
+                    row.map(cell => 
+                        typeof cell === 'string' && cell.includes(',') ? `"${cell}"` : cell
+                    ).join(',')
+                ).join('\n');
+                
+                // BOM ekle (Türkçe karakter desteği için)
+                const bom = '\uFEFF';
+                const csvWithBom = bom + csvString;
+                
+                // Blob oluştur ve indir
+                const blob = new Blob([csvWithBom], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                
+                if (link.download !== undefined) {
+                    const url = URL.createObjectURL(blob);
+                    link.setAttribute('href', url);
+                    link.setAttribute('download', `Umre_Hac_Raporu_${new Date().toLocaleDateString('tr-TR').replace(/\./g, '_')}.csv`);
+                    link.style.visibility = 'hidden';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    
+                    console.log('Excel dosyası oluşturuldu');
+                } else {
+                    // Fallback - clipboard'a kopyala
+                    if (navigator.clipboard) {
+                        navigator.clipboard.writeText(csvString).then(() => {
+                            alert('📊 Excel verileri kopyalandı!\n\nExcel açıp yapıştırın (Ctrl+V).');
+                        });
+                    } else {
+                        alert('📊 Excel verileri:\n\n' + csvString);
+                    }
+                }
+                
+            } catch (error) {
+                console.error('Excel export hatası:', error);
+                alert('Excel dosyası oluşturulamadı. Lütfen tekrar deneyin.');
             }
         }
         
@@ -699,6 +830,10 @@ TOPLAM:
             document.getElementById('travelStartDate').value = '';
             document.getElementById('travelEndDate').value = '';
             document.getElementById('busCost').value = '';
+            document.getElementById('groupName').value = '';
+            document.getElementById('groupLeader').value = '';
+            document.getElementById('makkahHotelName').value = '';
+            document.getElementById('madinahHotelName').value = '';
             
             // Dropdown'ları varsayılana döndür
             document.getElementById('visaCurrency').value = 'EUR';
@@ -709,6 +844,7 @@ TOPLAM:
             document.getElementById('profitType').value = 'percentage';
             document.getElementById('profitCurrency').value = 'EUR';
             document.getElementById('busType').value = 'standard';
+            document.getElementById('busCurrency').value = 'EUR';
             
             // Gece sayılarını sıfırla
             document.getElementById('makkahNights').textContent = '0 gece';
@@ -737,6 +873,23 @@ TOPLAM:
             
             // PDF butonunu gizle
             document.getElementById('pdfButton').style.display = 'none';
+            document.getElementById('excelButton').style.display = 'none';
+            
+            // Global değişkeni temizle
+            calculationData = {};
+            
+            console.log('Form sıfırlandı');
+        }
+        
+        // Sayfa yüklendiğinde hesaplama yap
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Sayfa yüklendi');
+            loadInitialRates();
+            calculateAll();
+        });
+    </script>
+</body>
+</html>
             
             // Global değişkeni temizle
             calculationData = {};
