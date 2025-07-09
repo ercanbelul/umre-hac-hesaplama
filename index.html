@@ -39,6 +39,25 @@
     <div id="app">
         <h1>Umre Hac Maliyet Hesaplama - by Ercan</h1>
         
+        <!-- Seyahat Tarihi -->
+        <div class="section" style="background: #fff3e0; border-left-color: #FF9800;">
+            <h3 style="color: #FF9800;">🗓️ SEYAHAT TARİHİ</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Seyahat Başlangıç Tarihi</label>
+                    <input type="date" id="travelStartDate" onchange="calculateDateInfo()">
+                </div>
+                <div class="form-group">
+                    <label>Seyahat Bitiş Tarihi</label>
+                    <input type="date" id="travelEndDate" onchange="calculateDateInfo()">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="nights-display" id="daysUntilTravel" style="background: #fff3e0; color: #FF9800;">Tarih seçin</div>
+                <div class="total-display" id="totalTravelDays" style="background: #fff3e0; color: #FF9800;">0 gün</div>
+            </div>
+        </div>
+        
         <!-- Kişi Sayısı -->
         <div class="section">
             <h3>KİŞİ SAYISI</h3>
@@ -308,6 +327,48 @@
             calculateAll();
         }
         
+        // Tarih bilgilerini hesapla
+        function calculateDateInfo() {
+            const startDate = document.getElementById('travelStartDate').value;
+            const endDate = document.getElementById('travelEndDate').value;
+            const today = new Date();
+            
+            if (startDate) {
+                const start = new Date(startDate);
+                const timeDiff = start - today;
+                const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+                
+                let countdownText = '';
+                if (daysDiff > 0) {
+                    countdownText = `${daysDiff} gün kaldı`;
+                } else if (daysDiff === 0) {
+                    countdownText = 'Bugün başlıyor!';
+                } else {
+                    countdownText = `${Math.abs(daysDiff)} gün önce başladı`;
+                }
+                
+                document.getElementById('daysUntilTravel').textContent = countdownText;
+            } else {
+                document.getElementById('daysUntilTravel').textContent = 'Tarih seçin';
+            }
+            
+            if (startDate && endDate) {
+                const start = new Date(startDate);
+                const end = new Date(endDate);
+                const travelDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+                
+                if (travelDays > 0) {
+                    document.getElementById('totalTravelDays').textContent = `${travelDays} gün seyahat`;
+                } else {
+                    document.getElementById('totalTravelDays').textContent = 'Geçersiz tarih';
+                }
+            } else {
+                document.getElementById('totalTravelDays').textContent = '0 gün';
+            }
+            
+            calculateAll();
+        }
+        
         // Kar türü değiştiğinde label'ı güncelle
         function updateProfitLabel() {
             const profitType = document.getElementById('profitType').value;
@@ -430,7 +491,11 @@
                 profitType, profitValue, profitCurrency, profitSar, profitOriginal,
                 totalWithProfitSar, totalWithProfitEur,
                 costPerPersonSar, costPerPersonForeign,
-                exchangeRate
+                exchangeRate,
+                travelStartDate: document.getElementById('travelStartDate').value,
+                travelEndDate: document.getElementById('travelEndDate').value,
+                daysUntilTravel: document.getElementById('daysUntilTravel').textContent,
+                totalTravelDays: document.getElementById('totalTravelDays').textContent
             };
             
             console.log('Toplam maliyet SAR:', totalCostSar);
@@ -446,8 +511,12 @@
             }
             
             document.getElementById('resultContent').innerHTML = `
+                <div class="cost-row"><span>🗓️ Seyahat Tarihi:</span><span>${calculationData.travelStartDate || 'Belirtilmedi'} - ${calculationData.travelEndDate || 'Belirtilmedi'}</span></div>
+                <div class="cost-row"><span>⏰ Geri Sayım:</span><span>${calculationData.daysUntilTravel}</span></div>
+                <div class="cost-row"><span>📅 Seyahat Süresi:</span><span>${calculationData.totalTravelDays}</span></div>
+                <hr style="margin: 10px 0;">
                 <div class="cost-row"><span>👥 Kişi Sayısı:</span><span>${paxCount} kişi</span></div>
-                <div class="cost-row"><span>📅 Toplam Gece:</span><span>${totalNights} gece (Makkah: ${makkahNights}, Madinah: ${madinahNights})</span></div>
+                <div class="cost-row"><span>🏨 Toplam Gece:</span><span>${totalNights} gece (Makkah: ${makkahNights}, Madinah: ${madinahNights})</span></div>
                 <div class="cost-row"><span>🛂 Vize Masrafı:</span><span>${totalVisaCost.toFixed(2)} ${visaCurrency} = ${visaCostSar.toFixed(2)} SAR</span></div>
                 <div class="cost-row"><span>✈️ Uçak Bileti${airlineDisplay}:</span><span>${totalFlightCost.toFixed(2)} ${flightCurrency} = ${flightCostSar.toFixed(2)} SAR</span></div>
                 <div class="cost-row"><span>🏨 Otel Masrafı:</span><span>${totalHotelSar.toFixed(2)} SAR</span></div>
@@ -485,6 +554,9 @@ Kur: 1 ${calculationData.visaCurrency} = ${calculationData.exchangeRate} SAR
 
 SEYAHAT BİLGİLERİ:
 • Kişi Sayısı: ${calculationData.paxCount} kişi
+• Seyahat Tarihi: ${calculationData.travelStartDate || 'Belirtilmedi'} - ${calculationData.travelEndDate || 'Belirtilmedi'}
+• Geri Sayım: ${calculationData.daysUntilTravel}
+• Seyahat Süresi: ${calculationData.totalTravelDays}
 • Toplam Gece: ${calculationData.totalNights} gece
 
 MALİYET DETAYLARI:
@@ -533,6 +605,8 @@ TOPLAM:
             document.getElementById('madinahMealCost').value = '';
             document.getElementById('exchangeRate').value = '';
             document.getElementById('profitValue').value = '';
+            document.getElementById('travelStartDate').value = '';
+            document.getElementById('travelEndDate').value = '';
             
             // Dropdown'ları varsayılana döndür
             document.getElementById('visaCurrency').value = 'EUR';
@@ -556,6 +630,10 @@ TOPLAM:
             // Kar label'ını güncelle
             document.getElementById('profitLabel').textContent = 'Kar Yüzdesi (%)';
             document.getElementById('profitValue').placeholder = 'Örn: 15';
+            
+            // Tarih bilgilerini sıfırla
+            document.getElementById('daysUntilTravel').textContent = 'Tarih seçin';
+            document.getElementById('totalTravelDays').textContent = '0 gün';
             
             // Sonuçları temizle
             document.getElementById('resultContent').innerHTML = '<div class="cost-row"><span>Hesaplama için yukarıdaki bilgileri doldurun</span></div>';
