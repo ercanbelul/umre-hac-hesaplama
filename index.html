@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <title>Umre Hac Maliyet Hesaplama - by Ercan</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
@@ -21,8 +21,6 @@
         .currency-symbol { font-size: 24px; font-weight: bold; color: #1976D2; }
         button { width: 100%; background: #2E7D32; color: white; padding: 15px; border: none; border-radius: 10px; font-size: 18px; font-weight: bold; margin: 20px 0; cursor: pointer; }
         button:hover { background: #1B5E20; }
-        .pdf-button { background: #D32F2F; margin-top: 10px; }
-        .pdf-button:hover { background: #B71C1C; }
         .result-section { background: #f3e5f5; padding: 20px; border-radius: 10px; margin-top: 20px; }
         .cost-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #ddd; }
         .cost-row.total { font-weight: bold; font-size: 16px; color: #1976D2; }
@@ -223,8 +221,6 @@
     <script>
         // Tarih değiştiğinde gece sayısını hesapla
         function calculateNights() {
-            console.log('calculateNights çalışıyor');
-            
             // Makkah gece hesaplama
             const makkahCheckIn = document.getElementById('makkahCheckIn').value;
             const makkahCheckOut = document.getElementById('makkahCheckOut').value;
@@ -252,8 +248,6 @@
         
         // Otel maliyetlerini hesapla
         function calculateHotelCosts() {
-            console.log('calculateHotelCosts çalışıyor');
-            
             // Makkah toplam hesaplama
             const makkahNightsText = document.getElementById('makkahNights').textContent;
             const makkahNights = parseInt(makkahNightsText.split(' ')[0]) || 0;
@@ -273,8 +267,6 @@
         
         // Kur sembolünü güncelle
         function updateCurrencySymbol() {
-            console.log('updateCurrencySymbol çalışıyor');
-            
             const currencyType = document.getElementById('currencyType').value;
             const currencySymbol = document.getElementById('currencySymbol');
             const currencyIcon = document.getElementById('currencyIcon');
@@ -291,13 +283,8 @@
         
         // Ana hesaplama fonksiyonu
         function calculateAll() {
-            console.log('calculateAll çalışıyor');
-            
             const paxCount = parseInt(document.getElementById('paxCount').value) || 0;
             const exchangeRate = parseFloat(document.getElementById('exchangeRate').value) || 1;
-            
-            console.log('Kişi sayısı:', paxCount);
-            console.log('Döviz kuru:', exchangeRate);
             
             // Vize bilgileri
             const visaCost = parseFloat(document.getElementById('visaCost').value) || 0;
@@ -341,8 +328,6 @@
             const costPerPersonSar = totalCostSar / paxCount;
             const costPerPersonForeign = costPerPersonSar / exchangeRate;
             
-            console.log('Toplam maliyet SAR:', totalCostSar);
-            
             // Sonuçları göster
             let airlineDisplay = airlineName ? ` (${airlineName})` : '';
             
@@ -363,9 +348,8 @@
             `;
         }
         
-        // Sayfa yüklendiğinde hesaplama yap
+        // Sayfa yüklendiğinde sadece hesaplama yap, tarihleri boş bırak
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('Sayfa yüklendi');
             calculateAll();
         });
     </script>
