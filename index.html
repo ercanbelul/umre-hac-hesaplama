@@ -4,6 +4,83 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Umre Hac Maliyet Hesaplama - by Ercan</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2E7D32">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 10px; }
+        #app { max-width: 700px; margin: 0 auto; background: white; border-radius: 15px; padding: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        @media (max-width: 768px) {
+            body { padding: 5px; }
+            #app { padding: 10px; }
+            .form-row { flex-direction: column; }
+        }
+        .section { background: #f8f9fa; padding: 15px; margin: 15px 0; border-radius: 10px; border-left: 4px solid #1976D2; }
+        .form-row { display: flex; gap: 10px; margin: 10px 0; flex-wrap: wrap; }
+        .form-group { flex: 1; min-width: 150px; }
+        input, select { width: 100%; padding: 12px; margin: 5px 0; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
+        button { width: 100%; background: #2E7D32; color: white; padding: 15px; border: none; border-radius: 10px; font-size: 18px; font-weight: bold; margin: 20px 0; cursor: pointer; }
+        .result-section { background: #f3e5f5; padding: 20px; border-radius: 10px; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <h1 style="text-align: center; color: #2E7D32;">Umre Hac Maliyet Hesaplama</h1>
+        
+        <div class="section">
+            <h3>KİŞİ SAYISI</h3>
+            <input type="number" id="paxCount" placeholder="Kişi sayısı" value="10">
+        </div>
+        
+        <div class="section">
+            <h3>KUR BİLGİLERİ</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <input type="number" id="exchangeRate" placeholder="1 EUR = ? SAR" value="4.00">
+                </div>
+                <div class="form-group">
+                    <button type="button" onclick="fetchLiveRates()">🔄 Kur Güncelle</button>
+                </div>
+            </div>
+        </div>
+        
+        <button onclick="calculateAll()">💰 HESAPLA</button>
+        
+        <div id="result" class="result-section">
+            <h3>📊 SONUÇ</h3>
+            <div id="resultContent">Hesaplama için yukarıdaki bilgileri doldurun</div>
+        </div>
+    </div>
+    
+    <script>
+        function fetchLiveRates() {
+            const rate = 3.95;
+            document.getElementById('exchangeRate').value = rate;
+            alert('Kur güncellendi: 1 EUR = ' + rate + ' SAR');
+        }
+        
+        function calculateAll() {
+            const pax = document.getElementById('paxCount').value || 0;
+            const rate = document.getElementById('exchangeRate').value || 1;
+            
+            const total = pax * 1000 * rate;
+            
+            document.getElementById('resultContent').innerHTML = 
+                `<p>Kişi Sayısı: ${pax}</p>
+                 <p>Döviz Kuru: ${rate}</p>
+                 <p>Toplam: ${total.toFixed(2)} SAR</p>`;
+        }
+        
+        // Sayfa yüklendiğinde hesapla
+        document.addEventListener('DOMContentLoaded', calculateAll);
+    </script>
+</body>
+</html><!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Umre Hac Maliyet Hesaplama - by Ercan</title>
     
     <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
