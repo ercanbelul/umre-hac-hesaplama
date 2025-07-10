@@ -4,8 +4,6 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Umre Hac Maliyet Hesaplama - by Ercan</title>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#2E7D32">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 10px; }
@@ -21,22 +19,82 @@
         input, select { width: 100%; padding: 12px; margin: 5px 0; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
         button { width: 100%; background: #2E7D32; color: white; padding: 15px; border: none; border-radius: 10px; font-size: 18px; font-weight: bold; margin: 20px 0; cursor: pointer; }
         .result-section { background: #f3e5f5; padding: 20px; border-radius: 10px; margin-top: 20px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; }
     </style>
 </head>
 <body>
     <div id="app">
         <h1 style="text-align: center; color: #2E7D32;">Umre Hac Maliyet Hesaplama</h1>
         
+        <!-- Grup Bilgileri -->
         <div class="section">
-            <h3>KİŞİ SAYISI</h3>
-            <input type="number" id="paxCount" placeholder="Kişi sayısı" value="10">
-        </div>
-        
-        <div class="section">
-            <h3>KUR BİLGİLERİ</h3>
+            <h3>👥 GRUP BİLGİLERİ</h3>
             <div class="form-row">
                 <div class="form-group">
-                    <input type="number" id="exchangeRate" placeholder="1 EUR = ? SAR" value="4.00">
+                    <label>Grup Adı</label>
+                    <input type="text" id="groupName" placeholder="Örn: Ankara Umre Grubu">
+                </div>
+                <div class="form-group">
+                    <label>Grup Lideri</label>
+                    <input type="text" id="groupLeader" placeholder="Örn: Ahmet Yılmaz">
+                </div>
+            </div>
+        </div>
+        
+        <!-- Oda Bilgileri -->
+        <div class="section">
+            <h3>🛏️ ODA BİLGİLERİ</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Double Oda (2 kişi)</label>
+                    <input type="number" id="doubleRooms" placeholder="Oda sayısı" value="0" min="0">
+                </div>
+                <div class="form-group">
+                    <label>Triple Oda (3 kişi)</label>
+                    <input type="number" id="tripleRooms" placeholder="Oda sayısı" value="0" min="0">
+                </div>
+                <div class="form-group">
+                    <label>Quad Oda (4 kişi)</label>
+                    <input type="number" id="quadRooms" placeholder="Oda sayısı" value="0" min="0">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Toplam Kişi Sayısı (Otomatik)</label>
+                    <input type="number" id="paxCount" placeholder="Hesaplanacak" readonly style="background: #f0f0f0;">
+                </div>
+            </div>
+        </div>
+        
+        <!-- Vize -->
+        <div class="section">
+            <h3>🛂 VİZE BİLGİLERİ</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Kişi Başı Vize (EUR)</label>
+                    <input type="number" id="visaCost" placeholder="Örn: 145" value="145">
+                </div>
+            </div>
+        </div>
+        
+        <!-- Uçak -->
+        <div class="section">
+            <h3>✈️ UÇAK BİLETİ</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Kişi Başı Uçak (EUR)</label>
+                    <input type="number" id="flightCost" placeholder="Örn: 850" value="850">
+                </div>
+            </div>
+        </div>
+        
+        <!-- Kur -->
+        <div class="section">
+            <h3>💱 KUR BİLGİLERİ</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>1 EUR = ? SAR</label>
+                    <input type="number" id="exchangeRate" placeholder="Örn: 4.00" value="4.00">
                 </div>
                 <div class="form-group">
                     <button type="button" onclick="fetchLiveRates()">🔄 Kur Güncelle</button>
@@ -47,524 +105,65 @@
         <button onclick="calculateAll()">💰 HESAPLA</button>
         
         <div id="result" class="result-section">
-            <h3>📊 SONUÇ</h3>
+            <h3>📊 MALİYET SONUCU</h3>
             <div id="resultContent">Hesaplama için yukarıdaki bilgileri doldurun</div>
         </div>
     </div>
     
     <script>
+        // Oda sayısından kişi sayısını hesapla
+        function updatePaxCount() {
+            const double = parseInt(document.getElementById('doubleRooms').value) || 0;
+            const triple = parseInt(document.getElementById('tripleRooms').value) || 0;
+            const quad = parseInt(document.getElementById('quadRooms').value) || 0;
+            
+            const totalPax = (double * 2) + (triple * 3) + (quad * 4);
+            document.getElementById('paxCount').value = totalPax;
+            
+            calculateAll();
+        }
+        
+        // Kur güncelle
         function fetchLiveRates() {
             const rate = 3.95;
             document.getElementById('exchangeRate').value = rate;
-            alert('Kur güncellendi: 1 EUR = ' + rate + ' SAR');
+            alert('✅ Kur güncellendi: 1 EUR = ' + rate + ' SAR');
+            calculateAll();
         }
         
+        // Ana hesaplama
         function calculateAll() {
-            const pax = document.getElementById('paxCount').value || 0;
-            const rate = document.getElementById('exchangeRate').value || 1;
+            const pax = parseInt(document.getElementById('paxCount').value) || 0;
+            const visaCost = parseFloat(document.getElementById('visaCost').value) || 0;
+            const flightCost = parseFloat(document.getElementById('flightCost').value) || 0;
+            const exchangeRate = parseFloat(document.getElementById('exchangeRate').value) || 1;
             
-            const total = pax * 1000 * rate;
+            const totalVisa = pax * visaCost * exchangeRate;
+            const totalFlight = pax * flightCost * exchangeRate;
+            const grandTotal = totalVisa + totalFlight;
             
-            document.getElementById('resultContent').innerHTML = 
-                `<p>Kişi Sayısı: ${pax}</p>
-                 <p>Döviz Kuru: ${rate}</p>
-                 <p>Toplam: ${total.toFixed(2)} SAR</p>`;
+            document.getElementById('resultContent').innerHTML = `
+                <p><strong>Kişi Sayısı:</strong> ${pax} kişi</p>
+                <p><strong>Vize Toplam:</strong> ${totalVisa.toFixed(2)} SAR</p>
+                <p><strong>Uçak Toplam:</strong> ${totalFlight.toFixed(2)} SAR</p>
+                <hr style="margin: 10px 0;">
+                <p><strong>GENEL TOPLAM:</strong> ${grandTotal.toFixed(2)} SAR</p>
+                <p><strong>Kişi Başı:</strong> ${(grandTotal/pax).toFixed(2)} SAR</p>
+            `;
         }
         
-        // Sayfa yüklendiğinde hesapla
-        document.addEventListener('DOMContentLoaded', calculateAll);
+        // Event listener'lar
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('doubleRooms').addEventListener('input', updatePaxCount);
+            document.getElementById('tripleRooms').addEventListener('input', updatePaxCount);
+            document.getElementById('quadRooms').addEventListener('input', updatePaxCount);
+            
+            document.getElementById('visaCost').addEventListener('input', calculateAll);
+            document.getElementById('flightCost').addEventListener('input', calculateAll);
+            document.getElementById('exchangeRate').addEventListener('input', calculateAll);
+            
+            updatePaxCount();
+        });
     </script>
 </body>
-</html><!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Umre Hac Maliyet Hesaplama - by Ercan</title>
-    
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#2E7D32">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="Umre Calc">
-    <link rel="apple-touch-icon" href="icon-192x192.png">
-    
-    <!-- Meta Tags -->
-    <meta name="description" content="Umre ve Hac seyahatleri için profesyonel maliyet hesaplama uygulaması">
-    <meta name="keywords" content="umre, hac, maliyet, hesaplama, seyahat, otel, uçak">
-    <meta name="author" content="Ercan Belül">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 10px; margin: 0; }
-        #app { max-width: 700px; margin: 0 auto; background: white; border-radius: 15px; padding: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); width: calc(100% - 20px); }
-        
-        /* MOBİL OPTİMİZASYON */
-        @media (max-width: 768px) {
-            body { padding: 5px; }
-            #app { padding: 10px; border-radius: 10px; width: calc(100% - 10px); }
-            h1 { font-size: 20px; margin-bottom: 20px; }
-            .section { padding: 10px; margin: 10px 0; }
-            .section h3 { font-size: 14px; }
-            h4 { font-size: 13px; margin: 10px 0 8px 0; }
-        }
-        
-        h1 { text-align: center; color: #2E7D32; margin-bottom: 30px; font-size: 24px; }
-        .section { background: #f8f9fa; padding: 15px; margin: 15px 0; border-radius: 10px; border-left: 4px solid #1976D2; }
-        .section h3 { color: #1976D2; margin-bottom: 10px; font-size: 16px; }
-        h4 { color: #2E7D32; margin: 15px 0 10px 0; font-size: 14px; }
-        .form-row { display: flex; gap: 10px; margin: 10px 0; flex-wrap: wrap; }
-        .form-group { flex: 1; min-width: 150px; }
-        .form-group label { display: block; font-weight: bold; color: #555; margin-bottom: 5px; font-size: 14px; word-wrap: break-word; }
-        input, select { width: 100%; padding: 12px; margin: 5px 0; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
-        
-        /* MOBİL INPUT OPTİMİZASYON */
-        @media (max-width: 768px) {
-            .form-row { flex-direction: column; gap: 5px; }
-            .form-group { min-width: auto; width: 100%; }
-            .form-group label { font-size: 13px; }
-            input, select { padding: 10px; font-size: 16px; margin: 3px 0; }
-            .hotel-row { flex-direction: column; gap: 5px; }
-            .currency-group { flex-wrap: wrap; justify-content: space-between; }
-        }
-        
-        input:focus, select:focus { border-color: #1976D2; outline: none; }
-        .currency-group { display: flex; align-items: center; gap: 10px; }
-        .currency-symbol { font-size: 24px; font-weight: bold; color: #1976D2; }
-        button { width: 100%; background: #2E7D32; color: white; padding: 15px; border: none; border-radius: 10px; font-size: 18px; font-weight: bold; margin: 20px 0; cursor: pointer; box-sizing: border-box; }
-        button:hover { background: #1B5E20; }
-        .pdf-button { background: #D32F2F; margin-top: 10px; }
-        .pdf-button:hover { background: #B71C1C; }
-        
-        /* MOBİL BUTON OPTİMİZASYON */
-        @media (max-width: 768px) {
-            button { padding: 12px; font-size: 16px; margin: 15px 0; }
-            .cost-row { padding: 6px 0; font-size: 14px; flex-wrap: wrap; }
-            .cost-row span { word-wrap: break-word; max-width: 100%; }
-            .nights-display, .total-display { padding: 6px; font-size: 12px; text-align: center; }
-        }
-        
-        .result-section { background: #f3e5f5; padding: 20px; border-radius: 10px; margin-top: 20px; }
-        .cost-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #ddd; }
-        .cost-row.total { font-weight: bold; font-size: 16px; color: #1976D2; }
-        .cost-row.person { font-weight: bold; font-size: 16px; color: #2E7D32; }
-        .hotel-row { display: flex; gap: 10px; margin: 10px 0; align-items: end; }
-        .date-group { flex: 1; }
-        .nights-display { padding: 8px; background: #e3f2fd; border-radius: 5px; text-align: center; font-weight: bold; font-size: 14px; }
-        .total-display { padding: 8px; background: #e8f5e8; border-radius: 5px; text-align: center; font-weight: bold; font-size: 14px; }
-    </style>
-</head>
-<body>
-    <div id="app">
-        <h1>Umre Hac Maliyet Hesaplama - by Ercan</h1>
-        
-        <!-- Grup Bilgileri -->
-        <div class="section" style="background: #e8f5e8; border-left-color: #4CAF50;">
-            <h3 style="color: #4CAF50;">👥 GRUP BİLGİLERİ</h3>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Grup Adı</label>
-                    <input type="text" id="groupName" placeholder="Örn: Ankara Umre Grubu" value="">
-                </div>
-                <div class="form-group">
-                    <label>Grup Lideri</label>
-                    <input type="text" id="groupLeader" placeholder="Örn: Ahmet Yılmaz" value="">
-                </div>
-            </div>
-        </div>
-        
-        <!-- Seyahat Tarihi -->
-        <div class="section" style="background: #fff3e0; border-left-color: #FF9800;">
-            <h3 style="color: #FF9800;">🗓️ SEYAHAT TARİHİ</h3>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Seyahat Başlangıç Tarihi</label>
-                    <input type="date" id="travelStartDate">
-                </div>
-                <div class="form-group">
-                    <label>Seyahat Bitiş Tarihi</label>
-                    <input type="date" id="travelEndDate">
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="nights-display" id="daysUntilTravel" style="background: #fff3e0; color: #FF9800;">Tarih seçin</div>
-                <div class="total-display" id="totalTravelDays" style="background: #fff3e0; color: #FF9800;">0 gün</div>
-            </div>
-        </div>
-        
-        <!-- Kişi Sayısı -->
-        <div class="section">
-            <h3>KİŞİ SAYISI</h3>
-            <div class="form-group">
-                <label>Toplam Kişi Sayısı (Otomatik Hesaplanır)</label>
-                <input type="number" id="paxCount" placeholder="Oda tiplerinden hesaplanacak" value="" readonly style="background: #f0f0f0;">
-            </div>
-        </div>
-        
-        <!-- Vize Bilgileri -->
-        <div class="section">
-            <h3>VİZE BİLGİLERİ</h3>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Kişi Başı Vize Ücreti</label>
-                    <input type="number" id="visaCost" placeholder="Örn: 145" value="" step="0.01">
-                </div>
-                <div class="form-group">
-                    <label>Para Birimi</label>
-                    <select id="visaCurrency">
-                        <option value="EUR">💶 EUR (Euro)</option>
-                        <option value="USD">💵 USD (Dolar)</option>
-                        <option value="SAR">🏛️ SAR (Riyal)</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Uçak Bileti Maliyetleri -->
-        <div class="section">
-            <h3>✈️ UÇAK BİLETİ MALİYETLERİ</h3>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Havayolu Şirketi</label>
-                    <input type="text" id="airlineName" placeholder="Örn: Turkish Airlines" value="">
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Kişi Başı Uçak Bileti Fiyatı</label>
-                    <input type="number" id="flightCost" placeholder="Örn: 850" value="" step="0.01">
-                </div>
-                <div class="form-group">
-                    <label>Para Birimi</label>
-                    <select id="flightCurrency">
-                        <option value="EUR">💶 EUR (Euro)</option>
-                        <option value="USD">💵 USD (Dolar)</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Otobüs Maliyetleri -->
-        <div class="section" style="background: #f3e5f5; border-left-color: #9C27B0;">
-            <h3 style="color: #9C27B0;">🚌 OTOBÜS MALİYETLERİ</h3>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Kişi Başı Otobüs Ücreti</label>
-                    <input type="number" id="busCost" placeholder="Örn: 150" value="" step="0.01">
-                </div>
-                <div class="form-group">
-                    <label>Para Birimi</label>
-                    <select id="busCurrency">
-                        <option value="EUR">💶 EUR (Euro)</option>
-                        <option value="USD">💵 USD (Dolar)</option>
-                        <option value="SAR">🏛️ SAR (Riyal)</option>
-                    </select>
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Otobüs Türü</label>
-                    <select id="busType">
-                        <option value="standard">🚌 Standart Otobüs</option>
-                        <option value="vip">✨ VIP Otobüs</option>
-                        <option value="local">🏪 Yerel Ulaşım</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Otel Rezervasyonları -->
-        <div class="section">
-            <h3>OTEL REZERVASYONLARI VE ODA TİPLERİ</h3>
-            
-            <!-- Makkah Oteli -->
-            <div style="margin-bottom: 20px;">
-                <h4>🕋 MAKKAH OTELİ</h4>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Otel Adı</label>
-                        <input type="text" id="makkahHotelName" placeholder="Örn: Hilton Makkah" value="">
-                    </div>
-                </div>
-                <div class="hotel-row">
-                    <div class="date-group">
-                        <label>Giriş Tarihi</label>
-                        <input type="date" id="makkahCheckIn">
-                    </div>
-                    <div class="date-group">
-                        <label>Çıkış Tarihi</label>
-                        <input type="date" id="makkahCheckOut">
-                    </div>
-                </div>
-                
-                <!-- Makkah Oda Tipleri ve Fiyatları -->
-                <h4 style="color: #1976D2; margin: 15px 0 10px 0;">🛏️ MAKKAH ODA TİPLERİ VE FİYATLARI</h4>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>🛏️ Double Oda Sayısı (2 kişi)</label>
-                        <input type="number" id="makkahDoubleRooms" placeholder="Oda sayısı" value="" min="0">
-                    </div>
-                    <div class="form-group">
-                        <label>🛏️ Double Oda Fiyatı (SAR/gece)</label>
-                        <input type="number" id="makkahDoublePrice" placeholder="Örn: 800" value="" step="0.01">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>🛏️🛏️ Triple Oda Sayısı (3 kişi)</label>
-                        <input type="number" id="makkahTripleRooms" placeholder="Oda sayısı" value="" min="0">
-                    </div>
-                    <div class="form-group">
-                        <label>🛏️🛏️ Triple Oda Fiyatı (SAR/gece)</label>
-                        <input type="number" id="makkahTriplePrice" placeholder="Örn: 1000" value="" step="0.01">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>🛏️🛏️🛏️ Quad Oda Sayısı (4 kişi)</label>
-                        <input type="number" id="makkahQuadRooms" placeholder="Oda sayısı" value="" min="0">
-                    </div>
-                    <div class="form-group">
-                        <label>🛏️🛏️🛏️ Quad Oda Fiyatı (SAR/gece)</label>
-                        <input type="number" id="makkahQuadPrice" placeholder="Örn: 1200" value="" step="0.01">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="nights-display" id="makkahNights">0 gece</div>
-                    <div class="total-display" id="makkahTotal">0 SAR</div>
-                </div>
-            </div>
-            
-            <!-- Madinah Oteli -->
-            <div>
-                <h4>🕌 MADİNAH OTELİ</h4>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Otel Adı</label>
-                        <input type="text" id="madinahHotelName" placeholder="Örn: Movenpick Madinah" value="">
-                    </div>
-                </div>
-                <div class="hotel-row">
-                    <div class="date-group">
-                        <label>Giriş Tarihi</label>
-                        <input type="date" id="madinahCheckIn">
-                    </div>
-                    <div class="date-group">
-                        <label>Çıkış Tarihi</label>
-                        <input type="date" id="madinahCheckOut">
-                    </div>
-                </div>
-                
-                <!-- Madinah Oda Tipleri ve Fiyatları -->
-                <h4 style="color: #1976D2; margin: 15px 0 10px 0;">🛏️ MADİNAH ODA TİPLERİ VE FİYATLARI</h4>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>🛏️ Double Oda Sayısı (2 kişi)</label>
-                        <input type="number" id="madinahDoubleRooms" placeholder="Oda sayısı" value="" min="0">
-                    </div>
-                    <div class="form-group">
-                        <label>🛏️ Double Oda Fiyatı (SAR/gece)</label>
-                        <input type="number" id="madinahDoublePrice" placeholder="Örn: 600" value="" step="0.01">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>🛏️🛏️ Triple Oda Sayısı (3 kişi)</label>
-                        <input type="number" id="madinahTripleRooms" placeholder="Oda sayısı" value="" min="0">
-                    </div>
-                    <div class="form-group">
-                        <label>🛏️🛏️ Triple Oda Fiyatı (SAR/gece)</label>
-                        <input type="number" id="madinahTriplePrice" placeholder="Örn: 750" value="" step="0.01">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>🛏️🛏️🛏️ Quad Oda Sayısı (4 kişi)</label>
-                        <input type="number" id="madinahQuadRooms" placeholder="Oda sayısı" value="" min="0">
-                    </div>
-                    <div class="form-group">
-                        <label>🛏️🛏️🛏️ Quad Oda Fiyatı (SAR/gece)</label>
-                        <input type="number" id="madinahQuadPrice" placeholder="Örn: 900" value="" step="0.01">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="nights-display" id="madinahNights">0 gece</div>
-                    <div class="total-display" id="madinahTotal">0 SAR</div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Yemek Bilgileri -->
-        <div class="section">
-            <h3>YEMEK BİLGİLERİ</h3>
-            
-            <!-- Mekke Yemekleri -->
-            <div style="margin-bottom: 20px;">
-                <h4>🕋 MEKKE YEMEKLERİ</h4>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Günlük Yemek Ücreti (Kişi Başı SAR)</label>
-                        <input type="number" id="makkahMealCost" placeholder="Örn: 80" value="" step="0.01">
-                    </div>
-                    <div class="form-group">
-                        <label>Yemek Paketi</label>
-                        <select id="makkahMealType">
-                            <option value="HB">🍽️ HB (Half Board)</option>
-                            <option value="BB">🥐 BB (Breakfast)</option>
-                            <option value="FB">🍽️🍽️ FB (Full Board)</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Medine Yemekleri -->
-            <div>
-                <h4>🕌 MEDİNE YEMEKLERİ</h4>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Günlük Yemek Ücreti (Kişi Başı SAR)</label>
-                        <input type="number" id="madinahMealCost" placeholder="Örn: 60" value="" step="0.01">
-                    </div>
-                    <div class="form-group">
-                        <label>Yemek Paketi</label>
-                        <select id="madinahMealType">
-                            <option value="HB">🍽️ HB (Half Board)</option>
-                            <option value="BB">🥐 BB (Breakfast)</option>
-                            <option value="FB">🍽️🍽️ FB (Full Board)</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Kar Ekleme -->
-        <div class="section" style="background: #e8f5e8; border-left-color: #4CAF50;">
-            <h3 style="color: #4CAF50;">💰 KAR EKLEME</h3>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Kar Türü</label>
-                    <select id="profitType">
-                        <option value="percentage">📊 Yüzde (%)</option>
-                        <option value="fixed">💵 Sabit Tutar</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label id="profitLabel">Kar Yüzdesi (%)</label>
-                    <input type="number" id="profitValue" placeholder="Örn: 15" value="" step="0.01">
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Kar Para Birimi</label>
-                    <select id="profitCurrency">
-                        <option value="EUR">💶 EUR (Euro)</option>
-                        <option value="USD">💵 USD (Dolar)</option>
-                        <option value="SAR">🏛️ SAR (Riyal)</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Kur Bilgileri -->
-        <div class="section">
-            <h3>KUR BİLGİLERİ</h3>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Para Birimi Seçin</label>
-                    <select id="currencyType">
-                        <option value="EUR">💶 Euro (EUR)</option>
-                        <option value="USD">💵 Dolar (USD)</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>1 <span id="currencySymbol">EUR</span> = ? SAR</label>
-                    <div class="currency-group">
-                        <span class="currency-symbol" id="currencyIcon">💶</span>
-                        <input type="number" id="exchangeRate" placeholder="Örn: 4.00" value="" step="0.01">
-                        <span style="font-weight: bold; color: #666;">SAR</span>
-                    </div>
-                </div>
-            </div>
-            <div class="form-row">
-                <button type="button" onclick="fetchLiveRates()" style="background: #2196F3; margin: 10px 0; padding: 10px;">
-                    🔄 Anlık Kur Güncelle
-                </button>
-                <div id="exchangeRateStatus" style="padding: 10px; font-size: 12px; color: #666;">
-                    Güncel kurlar için "Anlık Kur Güncelle" butonuna tıklayın
-                </div>
-            </div>
-        </div>
-        
-        <div style="display: flex; gap: 10px;">
-            <button onclick="calculateAll()" style="flex: 1;">💰 HESAPLA</button>
-            <button onclick="resetForm()" style="flex: 1; background: #FF5722;">🔄 SIFIRLA</button>
-        </div>
-        
-        <div id="result" class="result-section">
-            <h3>📊 MALİYET HESAPLAMA SONUCU</h3>
-            <div id="resultContent">
-                <div class="cost-row"><span>Hesaplama için yukarıdaki bilgileri doldurun</span></div>
-            </div>
-            <button class="pdf-button" onclick="generatePDF()" id="pdfButton" style="display: none;">
-                📋 Rapor Kopyala
-            </button>
-            <button class="pdf-button" onclick="exportToExcel()" id="excelButton" style="display: none; background: #2E7D32; margin-top: 5px;">
-                📊 Excel'e Aktar
-            </button>
-        </div>
-        
-        <div style="text-align: center; margin-top: 20px; color: #666; font-size: 12px;">
-            © 2025 Ercan Belül - Geliştirici
-        </div>
-    </div>
-    
-    <script>
-        let calculationData = {};
-        
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('Sayfa yüklendi');
-            
-            document.getElementById('makkahDoubleRooms').addEventListener('input', updateTotalPax);
-            document.getElementById('makkahTripleRooms').addEventListener('input', updateTotalPax);
-            document.getElementById('makkahQuadRooms').addEventListener('input', updateTotalPax);
-            document.getElementById('madinahDoubleRooms').addEventListener('input', updateTotalPax);
-            document.getElementById('madinahTripleRooms').addEventListener('input', updateTotalPax);
-            document.getElementById('madinahQuadRooms').addEventListener('input', updateTotalPax);
-            
-            document.getElementById('travelStartDate').addEventListener('change', calculateDateInfo);
-            document.getElementById('travelEndDate').addEventListener('change', calculateDateInfo);
-            document.getElementById('makkahCheckIn').addEventListener('change', calculateNights);
-            document.getElementById('makkahCheckOut').addEventListener('change', calculateNights);
-            document.getElementById('madinahCheckIn').addEventListener('change', calculateNights);
-            document.getElementById('madinahCheckOut').addEventListener('change', calculateNights);
-            
-            document.getElementById('makkahDoublePrice').addEventListener('input', calculateHotelCosts);
-            document.getElementById('makkahTriplePrice').addEventListener('input', calculateHotelCosts);
-            document.getElementById('makkahQuadPrice').addEventListener('input', calculateHotelCosts);
-            document.getElementById('makkahDoubleRooms').addEventListener('input', calculateHotelCosts);
-            document.getElementById('makkahTripleRooms').addEventListener('input', calculateHotelCosts);
-            document.getElementById('makkahQuadRooms').addEventListener('input', calculateHotelCosts);
-            
-            document.getElementById('madinahDoublePrice').addEventListener('input', calculateHotelCosts);
-            document.getElementById('madinahTriplePrice').addEventListener('input', calculateHotelCosts);
-            document.getElementById('madinahQuadPrice').addEventListener('input', calculateHotelCosts);
-            document.getElementById('madinahDoubleRooms').addEventListener('input', calculateHotelCosts);
-            document.getElementById('madinahTripleRooms').addEventListener('input', calculateHotelCosts);
-            document.getElementById('madinahQuadRooms').addEventListener('input', calculateHotelCosts);
-            
-            document.getElementById('profitType').addEventListener('change', updateProfitLabel);
-            document.getElementById('currencyType').addEventListener('change', updateCurrencySymbol);
-            
-            const otherInputs = [
-                'groupName', 'groupLeader', 'visaCost', 'visaCurrency', 
-                'airlineName', 'flightCost', 'flightCurrency',
-                'busCost', 'busCurrency', 'busType',
-                'makkahHotelName', 'madinahHotelName',
-                'makkahMealCost', 'makkahMealType', 'madinahMealCost', 'madinahMealType',
-                'profitValue', 'profitCurrency', 'exchangeRate'
-            ];
-            
-            otherInputs.forEach(id => {
-                const element = document.getElementById(id);
-                if (element) {
-                    element.addEventListener('input', calculateAll);
+</html>
