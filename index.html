@@ -75,7 +75,6 @@
         .date-group { flex: 1; }
         .nights-display { padding: 8px; background: #e3f2fd; border-radius: 5px; text-align: center; font-weight: bold; font-size: 14px; }
         .total-display { padding: 8px; background: #e8f5e8; border-radius: 5px; text-align: center; font-weight: bold; font-size: 14px; }
-        .room-types { background: #e3f2fd; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
     </style>
 </head>
 <body>
@@ -443,24 +442,18 @@
     </div>
     
     <script>
-        // Global değişkenler
         let calculationData = {};
         
-        // Event listeners
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('Sayfa yüklendi - Event listener sistemi başlatılıyor');
+            console.log('Sayfa yüklendi');
             
-            // Makkah oda sayıları
             document.getElementById('makkahDoubleRooms').addEventListener('input', updateTotalPax);
             document.getElementById('makkahTripleRooms').addEventListener('input', updateTotalPax);
             document.getElementById('makkahQuadRooms').addEventListener('input', updateTotalPax);
-            
-            // Madinah oda sayıları  
             document.getElementById('madinahDoubleRooms').addEventListener('input', updateTotalPax);
             document.getElementById('madinahTripleRooms').addEventListener('input', updateTotalPax);
             document.getElementById('madinahQuadRooms').addEventListener('input', updateTotalPax);
             
-            // Tarih alanları
             document.getElementById('travelStartDate').addEventListener('change', calculateDateInfo);
             document.getElementById('travelEndDate').addEventListener('change', calculateDateInfo);
             document.getElementById('makkahCheckIn').addEventListener('change', calculateNights);
@@ -468,7 +461,6 @@
             document.getElementById('madinahCheckIn').addEventListener('change', calculateNights);
             document.getElementById('madinahCheckOut').addEventListener('change', calculateNights);
             
-            // Makkah otel fiyatları
             document.getElementById('makkahDoublePrice').addEventListener('input', calculateHotelCosts);
             document.getElementById('makkahTriplePrice').addEventListener('input', calculateHotelCosts);
             document.getElementById('makkahQuadPrice').addEventListener('input', calculateHotelCosts);
@@ -476,7 +468,6 @@
             document.getElementById('makkahTripleRooms').addEventListener('input', calculateHotelCosts);
             document.getElementById('makkahQuadRooms').addEventListener('input', calculateHotelCosts);
             
-            // Madinah otel fiyatları
             document.getElementById('madinahDoublePrice').addEventListener('input', calculateHotelCosts);
             document.getElementById('madinahTriplePrice').addEventListener('input', calculateHotelCosts);
             document.getElementById('madinahQuadPrice').addEventListener('input', calculateHotelCosts);
@@ -484,13 +475,9 @@
             document.getElementById('madinahTripleRooms').addEventListener('input', calculateHotelCosts);
             document.getElementById('madinahQuadRooms').addEventListener('input', calculateHotelCosts);
             
-            // Kar türü
             document.getElementById('profitType').addEventListener('change', updateProfitLabel);
-            
-            // Kur türü
             document.getElementById('currencyType').addEventListener('change', updateCurrencySymbol);
             
-            // Diğer tüm alanlar
             const otherInputs = [
                 'groupName', 'groupLeader', 'visaCost', 'visaCurrency', 
                 'airlineName', 'flightCost', 'flightCurrency',
@@ -504,57 +491,3 @@
                 const element = document.getElementById(id);
                 if (element) {
                     element.addEventListener('input', calculateAll);
-                    element.addEventListener('change', calculateAll);
-                }
-            });
-            
-            console.log('Event listener sistemi kuruldu - İlk hesaplama başlatılıyor');
-            // İlk hesaplamayı yap
-            calculateAll();
-        });
-        
-        // Toplam kişi sayısını güncelle
-        function updateTotalPax() {
-            console.log('updateTotalPax çalışıyor');
-            
-            // Makkah oda sayıları
-            const makkahDoubleRooms = parseInt(document.getElementById('makkahDoubleRooms').value) || 0;
-            const makkahTripleRooms = parseInt(document.getElementById('makkahTripleRooms').value) || 0;
-            const makkahQuadRooms = parseInt(document.getElementById('makkahQuadRooms').value) || 0;
-            
-            // Madinah oda sayıları
-            const madinahDoubleRooms = parseInt(document.getElementById('madinahDoubleRooms').value) || 0;
-            const madinahTripleRooms = parseInt(document.getElementById('madinahTripleRooms').value) || 0;
-            const madinahQuadRooms = parseInt(document.getElementById('madinahQuadRooms').value) || 0;
-            
-            // En yüksek oda sayısını al (çünkü grup aynı)
-            const maxDoubleRooms = Math.max(makkahDoubleRooms, madinahDoubleRooms);
-            const maxTripleRooms = Math.max(makkahTripleRooms, madinahTripleRooms);
-            const maxQuadRooms = Math.max(makkahQuadRooms, madinahQuadRooms);
-            
-            const totalPax = (maxDoubleRooms * 2) + (maxTripleRooms * 3) + (maxQuadRooms * 4);
-            document.getElementById('paxCount').value = totalPax;
-            
-            console.log('Toplam kişi sayısı güncellendi:', totalPax);
-            calculateAll();
-        }
-        
-        // Basit döviz kuru güncellemesi
-        function fetchLiveRates() {
-            const statusDiv = document.getElementById('exchangeRateStatus');
-            const currencyType = document.getElementById('currencyType').value;
-            
-            try {
-                statusDiv.textContent = '🔄 Güncel kurlar ayarlanıyor...';
-                statusDiv.style.color = '#2196F3';
-                
-                let rate;
-                if (currencyType === 'EUR') {
-                    rate = 3.95;
-                } else if (currencyType === 'USD') {
-                    rate = 3.75;
-                }
-                
-                document.getElementById('exchangeRate').value = rate.toFixed(4);
-                
-                const updateTime = new Date().toLocale
