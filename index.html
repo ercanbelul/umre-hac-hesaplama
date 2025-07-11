@@ -39,21 +39,6 @@
     <div id="app">
         <h1>Umre Hac Maliyet Hesaplama - by Ercan</h1>
         
-        <!-- Grup Bilgileri -->
-        <div class="section" style="background: #e8f5e8; border-left-color: #4CAF50;">
-            <h3 style="color: #4CAF50;">👥 GRUP BİLGİLERİ</h3>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Grup Adı</label>
-                    <input type="text" id="groupName" placeholder="Örn: Ankara Umre Grubu" value="" onchange="calculateAll()">
-                </div>
-                <div class="form-group">
-                    <label>Grup Lideri</label>
-                    <input type="text" id="groupLeader" placeholder="Örn: Ahmet Yılmaz" value="" onchange="calculateAll()">
-                </div>
-            </div>
-        </div>
-        
         <!-- Seyahat Tarihi -->
         <div class="section" style="background: #fff3e0; border-left-color: #FF9800;">
             <h3 style="color: #FF9800;">🗓️ SEYAHAT TARİHİ</h3>
@@ -73,28 +58,12 @@
             </div>
         </div>
         
-        <!-- Kişi Sayısı ve Oda Tipleri -->
+        <!-- Kişi Sayısı -->
         <div class="section">
-            <h3>KİŞİ SAYISI VE ODA TİPLERİ</h3>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Toplam Kişi Sayısı</label>
-                    <input type="number" id="paxCount" placeholder="Örn: 50" value="" min="1" onchange="calculateAll()" readonly>
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>🛏️ Double Oda (2 kişi)</label>
-                    <input type="number" id="doubleRooms" placeholder="Oda sayısı" value="" min="0" onchange="updateTotalPax()">
-                </div>
-                <div class="form-group">
-                    <label>🛏️🛏️ Triple Oda (3 kişi)</label>
-                    <input type="number" id="tripleRooms" placeholder="Oda sayısı" value="" min="0" onchange="updateTotalPax()">
-                </div>
-                <div class="form-group">
-                    <label>🛏️🛏️🛏️ Quad Oda (4 kişi)</label>
-                    <input type="number" id="quadRooms" placeholder="Oda sayısı" value="" min="0" onchange="updateTotalPax()">
-                </div>
+            <h3>KİŞİ SAYISI</h3>
+            <div class="form-group">
+                <label>Kaç kişi seyahat edecek?</label>
+                <input type="number" id="paxCount" placeholder="Örn: 4" value="" min="1" onchange="calculateAll()">
             </div>
         </div>
         
@@ -111,7 +80,6 @@
                     <select id="visaCurrency" onchange="calculateAll()">
                         <option value="EUR">💶 EUR (Euro)</option>
                         <option value="USD">💵 USD (Dolar)</option>
-                        <option value="SAR">🏛️ SAR (Riyal)</option>
                     </select>
                 </div>
             </div>
@@ -141,35 +109,6 @@
             </div>
         </div>
         
-        <!-- Otobüs Maliyetleri -->
-        <div class="section" style="background: #f3e5f5; border-left-color: #9C27B0;">
-            <h3 style="color: #9C27B0;">🚌 OTOBÜS MALİYETLERİ</h3>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Kişi Başı Otobüs Ücreti</label>
-                    <input type="number" id="busCost" placeholder="Örn: 150" value="" step="0.01" onchange="calculateAll()">
-                </div>
-                <div class="form-group">
-                    <label>Para Birimi</label>
-                    <select id="busCurrency" onchange="calculateAll()">
-                        <option value="EUR">💶 EUR (Euro)</option>
-                        <option value="USD">💵 USD (Dolar)</option>
-                        <option value="SAR">🏛️ SAR (Riyal)</option>
-                    </select>
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Otobüs Türü</label>
-                    <select id="busType" onchange="calculateAll()">
-                        <option value="standard">🚌 Standart Otobüs</option>
-                        <option value="vip">✨ VIP Otobüs</option>
-                        <option value="local">🏪 Yerel Ulaşım</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-        
         <!-- Otel Rezervasyonları -->
         <div class="section">
             <h3>OTEL REZERVASYONLARI</h3>
@@ -177,12 +116,6 @@
             <!-- Makkah Oteli -->
             <div style="margin-bottom: 20px;">
                 <h4>🕋 MAKKAH OTELİ</h4>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Otel Adı</label>
-                        <input type="text" id="makkahHotelName" placeholder="Örn: Hilton Makkah" value="" onchange="calculateAll()">
-                    </div>
-                </div>
                 <div class="hotel-row">
                     <div class="date-group">
                         <label>Giriş Tarihi</label>
@@ -192,19 +125,9 @@
                         <label>Çıkış Tarihi</label>
                         <input type="date" id="makkahCheckOut" onchange="calculateNights()">
                     </div>
-                </div>
-                <div class="form-row">
                     <div class="form-group">
-                        <label>🛏️ Double Oda Fiyatı (SAR/gece)</label>
-                        <input type="number" id="makkahDoublePrice" placeholder="Örn: 800" value="" step="0.01" onchange="calculateHotelCosts()">
-                    </div>
-                    <div class="form-group">
-                        <label>🛏️🛏️ Triple Oda Fiyatı (SAR/gece)</label>
-                        <input type="number" id="makkahTriplePrice" placeholder="Örn: 1000" value="" step="0.01" onchange="calculateHotelCosts()">
-                    </div>
-                    <div class="form-group">
-                        <label>🛏️🛏️🛏️ Quad Oda Fiyatı (SAR/gece)</label>
-                        <input type="number" id="makkahQuadPrice" placeholder="Örn: 1200" value="" step="0.01" onchange="calculateHotelCosts()">
+                        <label>Gecelik Fiyat (SAR)</label>
+                        <input type="number" id="makkahPrice" placeholder="Örn: 725" value="" step="0.01" onchange="calculateHotelCosts()">
                     </div>
                 </div>
                 <div class="form-row">
@@ -216,12 +139,6 @@
             <!-- Madinah Oteli -->
             <div>
                 <h4>🕌 MADİNAH OTELİ</h4>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Otel Adı</label>
-                        <input type="text" id="madinahHotelName" placeholder="Örn: Movenpick Madinah" value="" onchange="calculateAll()">
-                    </div>
-                </div>
                 <div class="hotel-row">
                     <div class="date-group">
                         <label>Giriş Tarihi</label>
@@ -231,19 +148,9 @@
                         <label>Çıkış Tarihi</label>
                         <input type="date" id="madinahCheckOut" onchange="calculateNights()">
                     </div>
-                </div>
-                <div class="form-row">
                     <div class="form-group">
-                        <label>🛏️ Double Oda Fiyatı (SAR/gece)</label>
-                        <input type="number" id="madinahDoublePrice" placeholder="Örn: 600" value="" step="0.01" onchange="calculateHotelCosts()">
-                    </div>
-                    <div class="form-group">
-                        <label>🛏️🛏️ Triple Oda Fiyatı (SAR/gece)</label>
-                        <input type="number" id="madinahTriplePrice" placeholder="Örn: 750" value="" step="0.01" onchange="calculateHotelCosts()">
-                    </div>
-                    <div class="form-group">
-                        <label>🛏️🛏️🛏️ Quad Oda Fiyatı (SAR/gece)</label>
-                        <input type="number" id="madinahQuadPrice" placeholder="Örn: 900" value="" step="0.01" onchange="calculateHotelCosts()">
+                        <label>Gecelik Fiyat (SAR)</label>
+                        <input type="number" id="madinahPrice" placeholder="Örn: 440" value="" step="0.01" onchange="calculateHotelCosts()">
                     </div>
                 </div>
                 <div class="form-row">
@@ -344,14 +251,6 @@
                     </div>
                 </div>
             </div>
-            <div class="form-row">
-                <button type="button" onclick="fetchLiveRates()" style="background: #2196F3; margin: 10px 0; padding: 10px;">
-                    🔄 Anlık Kur Güncelle
-                </button>
-                <div id="exchangeRateStatus" style="padding: 10px; font-size: 12px; color: #666;">
-                    Güncel kurlar için "Anlık Kur Güncelle" butonuna tıklayın
-                </div>
-            </div>
         </div>
         
         <div style="display: flex; gap: 10px;">
@@ -366,9 +265,6 @@
             </div>
             <button class="pdf-button" onclick="generatePDF()" id="pdfButton" style="display: none;">
                 📋 Rapor Kopyala
-            </button>
-            <button class="pdf-button" onclick="exportToExcel()" id="excelButton" style="display: none; background: #2E7D32; margin-top: 5px;">
-                📊 Excel'e Aktar
             </button>
         </div>
         
@@ -414,95 +310,21 @@
         function calculateHotelCosts() {
             console.log('calculateHotelCosts çalışıyor');
             
-            // Oda sayıları
-            const doubleRooms = parseInt(document.getElementById('doubleRooms').value) || 0;
-            const tripleRooms = parseInt(document.getElementById('tripleRooms').value) || 0;
-            const quadRooms = parseInt(document.getElementById('quadRooms').value) || 0;
-            
-            // Makkah gece sayısı ve fiyatlar
+            // Makkah toplam hesaplama
             const makkahNightsText = document.getElementById('makkahNights').textContent;
             const makkahNights = parseInt(makkahNightsText.split(' ')[0]) || 0;
-            const makkahDoublePrice = parseFloat(document.getElementById('makkahDoublePrice').value) || 0;
-            const makkahTriplePrice = parseFloat(document.getElementById('makkahTriplePrice').value) || 0;
-            const makkahQuadPrice = parseFloat(document.getElementById('makkahQuadPrice').value) || 0;
-            
-            // Makkah toplam hesaplama
-            const makkahTotal = (doubleRooms * makkahDoublePrice * makkahNights) + 
-                              (tripleRooms * makkahTriplePrice * makkahNights) + 
-                              (quadRooms * makkahQuadPrice * makkahNights);
-            
+            const makkahPrice = parseFloat(document.getElementById('makkahPrice').value) || 0;
+            const makkahTotal = makkahNights * makkahPrice;
             document.getElementById('makkahTotal').textContent = makkahTotal.toFixed(2) + ' SAR';
             
-            // Madinah gece sayısı ve fiyatlar
+            // Madinah toplam hesaplama
             const madinahNightsText = document.getElementById('madinahNights').textContent;
             const madinahNights = parseInt(madinahNightsText.split(' ')[0]) || 0;
-            const madinahDoublePrice = parseFloat(document.getElementById('madinahDoublePrice').value) || 0;
-            const madinahTriplePrice = parseFloat(document.getElementById('madinahTriplePrice').value) || 0;
-            const madinahQuadPrice = parseFloat(document.getElementById('madinahQuadPrice').value) || 0;
-            
-            // Madinah toplam hesaplama
-            const madinahTotal = (doubleRooms * madinahDoublePrice * madinahNights) + 
-                                (tripleRooms * madinahTriplePrice * madinahNights) + 
-                                (quadRooms * madinahQuadPrice * madinahNights);
-            
+            const madinahPrice = parseFloat(document.getElementById('madinahPrice').value) || 0;
+            const madinahTotal = madinahNights * madinahPrice;
             document.getElementById('madinahTotal').textContent = madinahTotal.toFixed(2) + ' SAR';
             
             calculateAll();
-        }
-        
-        // Toplam kişi sayısını güncelle
-        function updateTotalPax() {
-            const doubleRooms = parseInt(document.getElementById('doubleRooms').value) || 0;
-            const tripleRooms = parseInt(document.getElementById('tripleRooms').value) || 0;
-            const quadRooms = parseInt(document.getElementById('quadRooms').value) || 0;
-            
-            const totalPax = (doubleRooms * 2) + (tripleRooms * 3) + (quadRooms * 4);
-            
-            document.getElementById('paxCount').value = totalPax;
-            
-            calculateAll();
-        }
-        
-        // Basit döviz kuru güncellemesi (API yerine)
-        function fetchLiveRates() {
-            const statusDiv = document.getElementById('exchangeRateStatus');
-            const currencyType = document.getElementById('currencyType').value;
-            
-            try {
-                statusDiv.textContent = '🔄 Güncel kurlar ayarlanıyor...';
-                statusDiv.style.color = '#2196F3';
-                
-                // Basit sabit kurlar (gerçek API yerine)
-                let rate;
-                if (currencyType === 'EUR') {
-                    rate = 3.95; // Örnek EUR/SAR kuru
-                } else if (currencyType === 'USD') {
-                    rate = 3.75; // Örnek USD/SAR kuru
-                }
-                
-                // Kuru input'a yaz
-                document.getElementById('exchangeRate').value = rate.toFixed(4);
-                
-                // Durum mesajını güncelle
-                const updateTime = new Date().toLocaleTimeString('tr-TR');
-                statusDiv.textContent = `✅ Kur güncellendi: 1 ${currencyType} = ${rate.toFixed(4)} SAR (${updateTime})`;
-                statusDiv.style.color = '#4CAF50';
-                
-                // Hesaplamayı yenile
-                calculateAll();
-                
-            } catch (error) {
-                console.error('Kur güncelleme hatası:', error);
-                statusDiv.textContent = '❌ Kur güncellenemedi. Manuel olarak girin.';
-                statusDiv.style.color = '#F44336';
-            }
-        }
-        
-        // Sayfa yüklendiğinde otomatik kur çekme (isteğe bağlı)
-        async function loadInitialRates() {
-            // Sayfa yüklendiğinde otomatik kur çekebiliriz
-            // Şimdilik manuel yapalım
-            console.log('Sayfa yüklendi - otomatik kur çekmek için fetchLiveRates() çağırılabilir');
         }
         
         // Tarih bilgilerini hesapla
@@ -599,11 +421,6 @@
             const flightCurrency = document.getElementById('flightCurrency').value;
             const airlineName = document.getElementById('airlineName').value || '';
             
-            // Otobüs bilgileri
-            const busCost = parseFloat(document.getElementById('busCost').value) || 0;
-            const busCurrency = document.getElementById('busCurrency').value;
-            const busType = document.getElementById('busType').value;
-            
             // Gece sayılarını al
             const makkahNights = parseInt(document.getElementById('makkahNights').textContent.split(' ')[0]) || 0;
             const madinahNights = parseInt(document.getElementById('madinahNights').textContent.split(' ')[0]) || 0;
@@ -620,21 +437,18 @@
             const madinahMealCost = parseFloat(document.getElementById('madinahMealCost').value) || 0;
             const madinahMealType = document.getElementById('madinahMealType').value;
             
-            // Vize hesaplama (SAR desteği ile)
+            // Hesaplamalar
             const totalVisaCost = paxCount * visaCost;
-            const visaCostSar = visaCurrency === 'SAR' ? totalVisaCost : totalVisaCost * exchangeRate;
+            const visaCostSar = totalVisaCost * exchangeRate;
             
             const totalFlightCost = paxCount * flightCost;
             const flightCostSar = totalFlightCost * exchangeRate;
-            
-            const totalBusCost = paxCount * busCost;
-            const busCostSar = busCurrency === 'SAR' ? totalBusCost : totalBusCost * exchangeRate;
             
             const makkahMealSar = paxCount * makkahNights * makkahMealCost;
             const madinahMealSar = paxCount * madinahNights * madinahMealCost;
             const totalMealSar = makkahMealSar + madinahMealSar;
             
-            const totalCostSar = visaCostSar + flightCostSar + busCostSar + totalHotelSar + totalMealSar;
+            const totalCostSar = visaCostSar + flightCostSar + totalHotelSar + totalMealSar;
             const totalCostEur = totalCostSar / exchangeRate;
             
             // Kar hesaplama
@@ -669,16 +483,8 @@
             // Global değişkene kaydet (PDF için)
             calculationData = {
                 paxCount, totalNights, makkahNights, madinahNights,
-                doubleRooms: parseInt(document.getElementById('doubleRooms').value) || 0,
-                tripleRooms: parseInt(document.getElementById('tripleRooms').value) || 0,
-                quadRooms: parseInt(document.getElementById('quadRooms').value) || 0,
-                groupName: document.getElementById('groupName').value,
-                groupLeader: document.getElementById('groupLeader').value,
-                makkahHotelName: document.getElementById('makkahHotelName').value,
-                madinahHotelName: document.getElementById('madinahHotelName').value,
                 visaCost, visaCurrency, totalVisaCost, visaCostSar,
                 flightCost, flightCurrency, totalFlightCost, flightCostSar, airlineName,
-                busCost, busCurrency, busType, totalBusCost, busCostSar,
                 totalHotelSar, makkahTotal, madinahTotal,
                 makkahMealSar, madinahMealSar, makkahMealType, madinahMealType,
                 totalCostSar, totalCostEur, 
@@ -696,7 +502,6 @@
             
             // Sonuçları göster
             let airlineDisplay = airlineName ? ` (${airlineName})` : '';
-            let busTypeDisplay = busType === 'standard' ? 'Standart' : busType === 'vip' ? 'VIP' : 'Yerel';
             let profitDisplay = '';
             
             if (profitType === 'percentage') {
@@ -706,34 +511,14 @@
             }
             
             document.getElementById('resultContent').innerHTML = `
-                <div class="cost-row"><span>👥 Grup Adı:</span><span>${calculationData.groupName || 'Belirtilmedi'}</span></div>
-                <div class="cost-row"><span>👤 Grup Lideri:</span><span>${calculationData.groupLeader || 'Belirtilmedi'}</span></div>
-                <hr style="margin: 10px 0;">
                 <div class="cost-row"><span>🗓️ Seyahat Tarihi:</span><span>${calculationData.travelStartDate || 'Belirtilmedi'} - ${calculationData.travelEndDate || 'Belirtilmedi'}</span></div>
                 <div class="cost-row"><span>⏰ Geri Sayım:</span><span>${calculationData.daysUntilTravel}</span></div>
                 <div class="cost-row"><span>📅 Seyahat Süresi:</span><span>${calculationData.totalTravelDays}</span></div>
                 <hr style="margin: 10px 0;">
-                <div class="cost-row"><span>🛏️ Oda Dağılımı:</span><span>${calculationData.doubleRooms}×Double + ${calculationData.tripleRooms}×Triple + ${calculationData.quadRooms}×Quad</span></div>
-                <div class="cost-row"><span>👥 Toplam Kişi:</span><span>${paxCount} kişi</span></div>
-                <div class="cost-row"><span>🕋 Makkah Otel:</span><span>${calculationData.makkahHotelName || 'Belirtilmedi'}</span></div>
-                <div class="cost-row"><span>🕌 Madinah Otel:</span><span>${calculationData.madinahHotelName || 'Belirtilmedi'}</span></div>
-                <hr style="margin: 10px 0;">
+                <div class="cost-row"><span>👥 Kişi Sayısı:</span><span>${paxCount} kişi</span></div>
                 <div class="cost-row"><span>🏨 Toplam Gece:</span><span>${totalNights} gece (Makkah: ${makkahNights}, Madinah: ${madinahNights})</span></div>
                 <div class="cost-row"><span>🛂 Vize Masrafı:</span><span>${totalVisaCost.toFixed(2)} ${visaCurrency} = ${visaCostSar.toFixed(2)} SAR</span></div>
                 <div class="cost-row"><span>✈️ Uçak Bileti${airlineDisplay}:</span><span>${totalFlightCost.toFixed(2)} ${flightCurrency} = ${flightCostSar.toFixed(2)} SAR</span></div>
-                <div class="cost-row"><span>🚌 Otobüs (${busTypeDisplay}):</span><span>${totalBusCost.toFixed(2)} ${busCurrency} = ${busCostSar.toFixed(2)} SAR</span></div>
-                <div class="cost-row"><span>🏨 Otel Masrafı:</span><span>${totalHotelSar.toFixed(2)} SAR</span></div>
-                <div class="cost-row"><span>🕋 Mekke Yemek (${makkahMealType}):</span><span>${makkahMealSar.toFixed(2)} SAR</span></div>
-                <div class="cost-row"><span>🕌 Medine Yemek (${madinahMealType}):</span><span>${madinahMealSar.toFixed(2)} SAR</span></div>
-                <hr style="margin: 15px 0;">
-                <div class="cost-row"><span>📊 Maliyet Toplamı:</span><span>${totalCostSar.toFixed(2)} SAR</span></div>
-                <div class="cost-row"><span>💰 Kar (${profitType === 'percentage' ? '%' : 'Sabit'}):</span><span>${profitDisplay}</span></div>
-                <div class="cost-row total"><span>🎯 KAR DAHİL TOPLAM:</span><span>${totalWithProfitSar.toFixed(2)} SAR</span></div>
-                <div class="cost-row total"><span>🎯 KAR DAHİL TOPLAM (${visaCurrency}):</span><span>${totalWithProfitEur.toFixed(2)} ${visaCurrency}</span></div>
-                <br>
-                <div class="cost-row person"><span>👤 KİŞİ BAŞI (SAR):</span><span>${costPerPersonSar.toFixed(2)} SAR</span></div>
-                <div class="cost-row person"><span>👤 KİŞİ BAŞI (${visaCurrency}):</span><span>${costPerPersonForeign.toFixed(2)} ${visaCurrency}</span></div>
-            `;toFixed(2)} SAR</span></div>
                 <div class="cost-row"><span>🏨 Otel Masrafı:</span><span>${totalHotelSar.toFixed(2)} SAR</span></div>
                 <div class="cost-row"><span>🕋 Mekke Yemek (${makkahMealType}):</span><span>${makkahMealSar.toFixed(2)} SAR</span></div>
                 <div class="cost-row"><span>🕌 Medine Yemek (${madinahMealType}):</span><span>${madinahMealSar.toFixed(2)} SAR</span></div>
@@ -750,10 +535,8 @@
             // PDF butonunu göster
             if (paxCount > 0 && totalWithProfitSar > 0) {
                 document.getElementById('pdfButton').style.display = 'block';
-                document.getElementById('excelButton').style.display = 'block';
             } else {
                 document.getElementById('pdfButton').style.display = 'none';
-                document.getElementById('excelButton').style.display = 'none';
             }
         }
         
@@ -769,10 +552,6 @@ Hazırlayan: Ercan Belül
 Tarih: ${reportDate}
 Kur: 1 ${calculationData.visaCurrency} = ${calculationData.exchangeRate} SAR
 
-GRUP BİLGİLERİ:
-• Grup Adı: ${calculationData.groupName || 'Belirtilmedi'}
-• Grup Lideri: ${calculationData.groupLeader || 'Belirtilmedi'}
-
 SEYAHAT BİLGİLERİ:
 • Kişi Sayısı: ${calculationData.paxCount} kişi
 • Seyahat Tarihi: ${calculationData.travelStartDate || 'Belirtilmedi'} - ${calculationData.travelEndDate || 'Belirtilmedi'}
@@ -780,14 +559,9 @@ SEYAHAT BİLGİLERİ:
 • Seyahat Süresi: ${calculationData.totalTravelDays}
 • Toplam Gece: ${calculationData.totalNights} gece
 
-OTEL BİLGİLERİ:
-• Makkah Otel: ${calculationData.makkahHotelName || 'Belirtilmedi'}
-• Madinah Otel: ${calculationData.madinahHotelName || 'Belirtilmedi'}
-
 MALİYET DETAYLARI:
 • Vize: ${calculationData.totalVisaCost.toFixed(2)} ${calculationData.visaCurrency} = ${calculationData.visaCostSar.toFixed(2)} SAR
 • Uçak: ${calculationData.totalFlightCost.toFixed(2)} ${calculationData.flightCurrency} = ${calculationData.flightCostSar.toFixed(2)} SAR
-• Otobüs: ${calculationData.totalBusCost.toFixed(2)} ${calculationData.busCurrency} = ${calculationData.busCostSar.toFixed(2)} SAR
 • Otel: ${calculationData.totalHotelSar.toFixed(2)} SAR
 • Yemek: ${(calculationData.makkahMealSar + calculationData.madinahMealSar).toFixed(2)} SAR
 
@@ -812,87 +586,6 @@ TOPLAM:
             }
         }
         
-        // Excel'e aktarma fonksiyonu
-        function exportToExcel() {
-            try {
-                // CSV formatında veri hazırla
-                const csvData = [
-                    ['Umre Hac Maliyet Hesaplama Raporu'],
-                    ['Hazırlayan: Ercan Belül'],
-                    ['Tarih: ' + new Date().toLocaleDateString('tr-TR')],
-                    [''],
-                    ['GRUP BİLGİLERİ'],
-                    ['Grup Adı', calculationData.groupName || 'Belirtilmedi'],
-                    ['Grup Lideri', calculationData.groupLeader || 'Belirtilmedi'],
-                    [''],
-                    ['SEYAHAT BİLGİLERİ'],
-                    ['Kişi Sayısı', calculationData.paxCount + ' kişi'],
-                    ['Seyahat Tarihi', (calculationData.travelStartDate || 'Belirtilmedi') + ' - ' + (calculationData.travelEndDate || 'Belirtilmedi')],
-                    ['Geri Sayım', calculationData.daysUntilTravel],
-                    ['Toplam Gece', calculationData.totalNights + ' gece'],
-                    [''],
-                    ['OTEL BİLGİLERİ'],
-                    ['Makkah Otel', calculationData.makkahHotelName || 'Belirtilmedi'],
-                    ['Madinah Otel', calculationData.madinahHotelName || 'Belirtilmedi'],
-                    [''],
-                    ['MALİYET DETAYLARI'],
-                    ['Vize', calculationData.totalVisaCost.toFixed(2) + ' ' + calculationData.visaCurrency + ' = ' + calculationData.visaCostSar.toFixed(2) + ' SAR'],
-                    ['Uçak Bileti', calculationData.totalFlightCost.toFixed(2) + ' ' + calculationData.flightCurrency + ' = ' + calculationData.flightCostSar.toFixed(2) + ' SAR'],
-                    ['Otobüs', calculationData.totalBusCost.toFixed(2) + ' ' + calculationData.busCurrency + ' = ' + calculationData.busCostSar.toFixed(2) + ' SAR'],
-                    ['Otel', calculationData.totalHotelSar.toFixed(2) + ' SAR'],
-                    ['Yemek', (calculationData.makkahMealSar + calculationData.madinahMealSar).toFixed(2) + ' SAR'],
-                    [''],
-                    ['TOPLAM'],
-                    ['Maliyet Toplamı', calculationData.totalCostSar.toFixed(2) + ' SAR'],
-                    ['Kar', calculationData.profitSar.toFixed(2) + ' SAR'],
-                    ['Kar Dahil Toplam', calculationData.totalWithProfitSar.toFixed(2) + ' SAR'],
-                    ['Kişi Başı', calculationData.costPerPersonSar.toFixed(2) + ' SAR'],
-                    [''],
-                    ['© 2025 Ercan Belül']
-                ];
-                
-                // CSV stringine dönüştür
-                const csvString = csvData.map(row => 
-                    row.map(cell => 
-                        typeof cell === 'string' && cell.includes(',') ? `"${cell}"` : cell
-                    ).join(',')
-                ).join('\n');
-                
-                // BOM ekle (Türkçe karakter desteği için)
-                const bom = '\uFEFF';
-                const csvWithBom = bom + csvString;
-                
-                // Blob oluştur ve indir
-                const blob = new Blob([csvWithBom], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement('a');
-                
-                if (link.download !== undefined) {
-                    const url = URL.createObjectURL(blob);
-                    link.setAttribute('href', url);
-                    link.setAttribute('download', `Umre_Hac_Raporu_${new Date().toLocaleDateString('tr-TR').replace(/\./g, '_')}.csv`);
-                    link.style.visibility = 'hidden';
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    
-                    console.log('Excel dosyası oluşturuldu');
-                } else {
-                    // Fallback - clipboard'a kopyala
-                    if (navigator.clipboard) {
-                        navigator.clipboard.writeText(csvString).then(() => {
-                            alert('📊 Excel verileri kopyalandı!\n\nExcel açıp yapıştırın (Ctrl+V).');
-                        });
-                    } else {
-                        alert('📊 Excel verileri:\n\n' + csvString);
-                    }
-                }
-                
-            } catch (error) {
-                console.error('Excel export hatası:', error);
-                alert('Excel dosyası oluşturulamadı. Lütfen tekrar deneyin.');
-            }
-        }
-        
         // Sıfırlama fonksiyonu
         function resetForm() {
             console.log('Form sıfırlanıyor...');
@@ -914,11 +607,6 @@ TOPLAM:
             document.getElementById('profitValue').value = '';
             document.getElementById('travelStartDate').value = '';
             document.getElementById('travelEndDate').value = '';
-            document.getElementById('busCost').value = '';
-            document.getElementById('groupName').value = '';
-            document.getElementById('groupLeader').value = '';
-            document.getElementById('makkahHotelName').value = '';
-            document.getElementById('madinahHotelName').value = '';
             
             // Dropdown'ları varsayılana döndür
             document.getElementById('visaCurrency').value = 'EUR';
@@ -928,8 +616,6 @@ TOPLAM:
             document.getElementById('currencyType').value = 'EUR';
             document.getElementById('profitType').value = 'percentage';
             document.getElementById('profitCurrency').value = 'EUR';
-            document.getElementById('busType').value = 'standard';
-            document.getElementById('busCurrency').value = 'EUR';
             
             // Gece sayılarını sıfırla
             document.getElementById('makkahNights').textContent = '0 gece';
@@ -949,16 +635,11 @@ TOPLAM:
             document.getElementById('daysUntilTravel').textContent = 'Tarih seçin';
             document.getElementById('totalTravelDays').textContent = '0 gün';
             
-            // Kur durumunu sıfırla
-            document.getElementById('exchangeRateStatus').textContent = 'Güncel kurlar için "Anlık Kur Güncelle" butonuna tıklayın';
-            document.getElementById('exchangeRateStatus').style.color = '#666';
-            
             // Sonuçları temizle
             document.getElementById('resultContent').innerHTML = '<div class="cost-row"><span>Hesaplama için yukarıdaki bilgileri doldurun</span></div>';
             
             // PDF butonunu gizle
             document.getElementById('pdfButton').style.display = 'none';
-            document.getElementById('excelButton').style.display = 'none';
             
             // Global değişkeni temizle
             calculationData = {};
@@ -969,23 +650,6 @@ TOPLAM:
         // Sayfa yüklendiğinde hesaplama yap
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Sayfa yüklendi');
-            loadInitialRates();
-            calculateAll();
-        });
-    </script>
-</body>
-</html>
-            
-            // Global değişkeni temizle
-            calculationData = {};
-            
-            console.log('Form sıfırlandı');
-        }
-        
-        // Sayfa yüklendiğinde hesaplama yap
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('Sayfa yüklendi');
-            loadInitialRates();
             calculateAll();
         });
     </script>
