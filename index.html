@@ -1738,51 +1738,44 @@
 <script>
 <script>
 function exportDetailedToExcel() {
-    const dblCount = parseInt(document.getElementById("dblCount").value) || 0;
-const dblPrice = parseFloat(document.getElementById("dblPrice").value) || 0;
-const trplCount = parseInt(document.getElementById("trplCount").value) || 0;
-const trplPrice = parseFloat(document.getElementById("trplPrice").value) || 0;
-const qrdCount = parseInt(document.getElementById("qrdCount").value) || 0;
-const qrdPrice = parseFloat(document.getElementById("qrdPrice").value) || 0;
-
-const mealPrice = parseFloat(document.getElementById("mealPrice").value) || 0;
-const visaPrice = parseFloat(document.getElementById("visaCost").value) || 0;
-const busPrice = parseFloat(document.getElementById("busTotalCost").value) || 0;
-const flightPrice = parseFloat(document.getElementById("flightCost").value) || 0;
-
-const totalPeople = dblCount + trplCount + qrdCount;
-const totalWithoutProfit =
-    (dblCount * dblPrice) +
-    (trplCount * trplPrice) +
-    (qrdCount * qrdPrice) +
-    mealPrice + visaPrice + busPrice + flightPrice;
     const wb = XLSX.utils.book_new();
-    const wsData = [
-        ["🧾 UMRE MALİYET RAPORU"],
-        [],
-        ["Müşteri:", "Müşteri"],
-        ["Kişi Sayısı:", totalPeople],
-        ["Tarih:", new Date().toLocaleDateString("tr-TR")],
-        [],
-        ["🛏️ ODA TİPİNE GÖRE KİŞİ BAŞI ÜCRETLER (Kâr hariç)"],
-        ["Oda Tipi", "Kişi Sayısı", "Kişi Başı Ücret (SAR)", "Toplam (SAR)"],
-        ["DOUBLE (DBL)", dblCount, dblPrice.toFixed(2), (dblCount * dblPrice).toFixed(2)],
-        ["TRIPLE (TRPL)", trplCount, trplPrice.toFixed(2), (trplCount * trplPrice).toFixed(2)],
-        ["QUAD (QRD)", qrdCount, qrdPrice.toFixed(2), (qrdCount * qrdPrice).toFixed(2)],
-        [],
-        ["🍽️ DİĞER KALEMLER"],
-        ["Yemek Ücreti", mealPrice.toFixed(2)],
-        ["Vize Ücreti", visaPrice.toFixed(2)],
-        ["Otobüs Ücreti", busPrice.toFixed(2)],
-        ["Uçak Ücreti", flightPrice.toFixed(2)],
-        [],
-        ["💱 TOPLAM MALİYET (Kâr Hariç)", "", "", totalWithoutProfit.toFixed(2)],
-    ];
+    const wsData = [];
+
+    wsData.push(["📘 UMRE MALİYET RAPORU"]);
+    wsData.push([]);
+    wsData.push(["Müşteri:", document.getElementById("customerName")?.value || ""]);
+    wsData.push(["Kişi Sayısı:", totalPeople]);
+    wsData.push(["Tarih:", new Date().toLocaleDateString("tr-TR")]);
+    wsData.push([]);
+
+    wsData.push(["🛏️ ODA TİPİNE GÖRE KİŞİ BAŞI ÜCRETLER (Kâr Hariç)"]);
+    wsData.push(["Oda Tipi", "Kişi Sayısı", "Kişi Başı Ücret (SAR)", "Toplam (SAR)"]);
+    wsData.push(["DOUBLE (DBL)", dblCount, dblPrice.toFixed(2), (dblCount * dblPrice).toFixed(2)]);
+    wsData.push(["TRIPLE (TRPL)", trplCount, trplPrice.toFixed(2), (trplCount * trplPrice).toFixed(2)]);
+    wsData.push(["QUAD (QRD)", qrdCount, qrdPrice.toFixed(2), (qrdCount * qrdPrice).toFixed(2)]);
+    wsData.push([]);
+
+    wsData.push(["🍽️ DİĞER KALEMLER"]);
+    wsData.push(["Yemek Ücreti", mealPrice.toFixed(2)]);
+    wsData.push(["Vize Ücreti", visaPrice.toFixed(2)]);
+    wsData.push(["Otobüs Ücreti", busPrice.toFixed(2)]);
+    wsData.push(["Uçak Ücreti", flightPrice.toFixed(2)]);
+    wsData.push([]);
+
+    wsData.push(["💰 TOPLAM MALİYET (Kâr Hariç)", totalWithoutProfit.toFixed(2)]);
+    wsData.push([]);
+
+    wsData.push(["🌐 TOPLAM MALİYET"]);
+    wsData.push(["Para Birimi", "Toplam", "Kişi Başı"]);
+    wsData.push(["SAR", totalSAR.toFixed(2), totalPerPersonSAR.toFixed(2)]);
+    wsData.push(["EUR", totalEUR.toFixed(2), totalPerPersonEUR.toFixed(2)]);
+    wsData.push(["USD", totalUSD.toFixed(2), totalPerPersonUSD.toFixed(2)]);
 
     const ws = XLSX.utils.aoa_to_sheet(wsData);
     XLSX.utils.book_append_sheet(wb, ws, "Rapor");
 
-    const fileName = `Umre_Raporu_Musteri_${new Date().toISOString().slice(0, 10)}.xlsx`;
+    const customer = document.getElementById("customerName")?.value || "Musteri";
+    const fileName = `Umre_Raporu_${customer}_${new Date().toISOString().slice(0, 10)}.xlsx`;
     XLSX.writeFile(wb, fileName);
 }
 </script>
