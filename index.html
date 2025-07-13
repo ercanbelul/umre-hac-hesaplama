@@ -1810,9 +1810,10 @@ function exportDetailedToExcel() {
 
     wsData.push(["🛏️ ODA TİPİNE GÖRE KİŞİ BAŞI ÜCRETLER (Kâr Hariç)"]);
     wsData.push(["Oda Tipi", "Kişi Sayısı", "Kişi Başı Ücret (SAR)", "Toplam (SAR)"]);
-    wsData.push(["DOUBLE (DBL)", dblCount, dblPrice.toFixed(2), (dblCount * dblPrice).toFixed(2)]);
-    wsData.push(["TRIPLE (TRPL)", trplCount, trplPrice.toFixed(2), (trplCount * trplPrice).toFixed(2)]);
-    wsData.push(["QUAD (QRD)", qrdCount, qrdPrice.toFixed(2), (qrdCount * qrdPrice).toFixed(2)]);
+
+wsData.push(["DOUBLE (DBL)", dblCount, dblPrice.toFixed(2), (dblCount * dblPrice).toFixed(2)]);
+wsData.push(["TRIPLE (TRPL)", trplCount, trplPrice.toFixed(2), (trplCount * trplPrice).toFixed(2)]);
+wsData.push(["QUAD (QRD)", qrdCount, qrdPrice.toFixed(2), (qrdCount * qrdPrice).toFixed(2)]);
     wsData.push([]);
 
     wsData.push(["🍽️ DİĞER KALEMLER"]);
