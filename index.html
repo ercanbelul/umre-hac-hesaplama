@@ -1732,5 +1732,30 @@
             setTimeout(calculateAll, 500);
         });
     </script>
+<script>
+function indirExcel() {
+    const veri = [
+        { Ad: "Ahmet", Oda: "Quad", Ucret: 4500 },
+        { Ad: "Mehmet", Oda: "Double", Ucret: 5000 }
+    ];
+
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(veri);
+    XLSX.utils.book_append_sheet(wb, ws, "Hac-Umre");
+
+    const excelData = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+    const blob = new Blob([excelData], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    });
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = "umre-hesaplama.xlsx";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+</script>
 </body>
 </html>
