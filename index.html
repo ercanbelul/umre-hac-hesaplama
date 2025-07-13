@@ -396,6 +396,9 @@
                 <div class="form-row">
                     <button onclick="saveCalculation()" style="background: linear-gradient(135deg, #4CAF50, #66BB6A); margin: 8px;" data-translate="save_calculation">💾 Hesaplamayı Kaydet</button>
                     <button onclick="loadCalculation()" style="background: linear-gradient(135deg, #2196F3, #42A5F5); margin: 8px;" data-translate="load_calculation">📂 Hesaplamayı Yükle</button>
+                    <button onclick="exportDetailedToExcel()" style="background: linear-gradient(135deg, #6bb8e0, #4e8aab); color: white; border: none; padding: 10px 20px; border-radius: 8px; margin: 8px; font-weight: bold;">
+    📊 Detaylı Excel İndir
+</button>
                 </div>
                 <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="handleFileLoad(event)">
             </div>
