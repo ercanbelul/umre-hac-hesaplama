@@ -1733,28 +1733,53 @@
         });
     </script>
 <script>
-function indirExcel() {
-    const veri = [
-        { Ad: "Ahmet", Oda: "Quad", Ucret: 4500 },
-        { Ad: "Mehmet", Oda: "Double", Ucret: 5000 }
-    ];
+function exportToExcel() {
+    const workbook = XLSX.utils.book_new();
+    const sheetData = [];
 
-    const wb = XLSX.utils.book_new();
-    const ws = XLSX.utils.json_to_sheet(veri);
-    XLSX.utils.book_append_sheet(wb, ws, "Hac-Umre");
+    const today = new Date().toISOString().split("T")[0];
 
-    const excelData = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-    const blob = new Blob([excelData], {
-        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    });
+    // Başlıklar
+    sheetData.push(["🧾 UMRE MALİYET RAPORU"]);
+    sheetData.push([]);
+    sheetData.push(["Müşteri:", "Müşteri"]);
+    sheetData.push(["Kişi Sayısı:", "21"]);
+    sheetData.push(["Tarih:", today]);
+    sheetData.push(["Oda Tipi:", "Quadruple"]);
+    sheetData.push(["Gün Sayısı:", "7"]);
+    sheetData.push(["Oda Fiyatı (Gece/Kişi):", "120 SAR"]);
+    sheetData.push(["Uçak Bileti (Kişi):", "1500 SAR"]);
+    sheetData.push(["Otobüs (Toplam):", "1200 SAR"]);
+    sheetData.push(["Vize (Kişi):", "400 SAR"]);
+    sheetData.push(["Yemek Dahil:", "Evet"]);
+    sheetData.push(["Kar Oranı (%):", "15"]);
+    sheetData.push([]);
 
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = "umre-hesaplama.xlsx";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    // Toplam Maliyet Tablosu
+    sheetData.push(["💰 TOPLAM MALİYET"]);
+    sheetData.push(["Para Birimi", "Toplam", "Kişi Başı"]);
+    sheetData.push(["SAR", 54496.00, 2595.05]);
+    sheetData.push(["EUR", 13556.22, 645.53]);
+    sheetData.push(["USD", 14532.27, 692.01]);
+
+    const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Rapor");
+
+    const wbout = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+
+    const blob = new Blob([wbout], { type: "application/octet-stream" });
+
+    const filename = `Umre_Raporu_Musteri_${today}.xlsx`;
+    if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+        window.navigator.msSaveOrOpenBlob(blob, filename);
+    } else {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        a.click();
+        window.URL.revokeObjectURL(url);
+    }
 }
 </script>
 </body>
