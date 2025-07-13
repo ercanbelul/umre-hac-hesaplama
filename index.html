@@ -1816,21 +1816,34 @@ wsData.push(["TRIPLE (TRPL)", trplCount, trplPrice.toFixed(2), (trplCount * trpl
 wsData.push(["QUAD (QRD)", qrdCount, qrdPrice.toFixed(2), (qrdCount * qrdPrice).toFixed(2)]);
     wsData.push([]);
 
-    wsData.push(["🍽️ DİĞER KALEMLER"]);
-    wsData.push(["Yemek Ücreti", mealPrice.toFixed(2)]);
-    wsData.push(["Vize Ücreti", visaPrice.toFixed(2)]);
-    wsData.push(["Otobüs Ücreti", busPrice.toFixed(2)]);
-    wsData.push(["Uçak Ücreti", flightPrice.toFixed(2)]);
+wsData.push(["🍱 DİĞER KALEMLER"]);
+wsData.push(["Gider Kalemi", "Toplam Tutar (SAR)"]);
+wsData.push(["Yemek Ücreti", mealPrice.toFixed(2)]);
+wsData.push(["Vize Ücreti", visaPrice.toFixed(2)]);
+wsData.push(["Otobüs Ücreti", busPrice.toFixed(2)]);
+wsData.push(["Uçak Ücreti", flightPrice.toFixed(2)]);
     wsData.push([]);
 
     wsData.push(["💰 TOPLAM MALİYET (Kâr Hariç)", totalWithoutProfit.toFixed(2)]);
     wsData.push([]);
 
-    wsData.push(["🌐 TOPLAM MALİYET"]);
-    wsData.push(["Para Birimi", "Toplam", "Kişi Başı"]);
-    wsData.push(["SAR", totalSAR.toFixed(2), totalPerPersonSAR.toFixed(2)]);
-    wsData.push(["EUR", totalEUR.toFixed(2), totalPerPersonEUR.toFixed(2)]);
-    wsData.push(["USD", totalUSD.toFixed(2), totalPerPersonUSD.toFixed(2)]);
+   wsData.push(["💳 TOPLAM MALİYET"]);
+wsData.push(["Para Birimi", "Toplam", "Kişi Başı"]);
+wsData.push(["SAR", totalSAR.toFixed(2), totalPerPersonSAR.toFixed(2)]);
+wsData.push(["EUR", totalEUR.toFixed(2), totalPerPersonEUR.toFixed(2)]);
+wsData.push(["USD", totalUSD.toFixed(2), totalPerPersonUSD.toFixed(2)]);
+
+wsData.push([]);
+wsData.push(["💼 KÂR VE NET MALİYET BİLGİLERİ"]);
+wsData.push(["Açıklama", "Tutar (SAR)"]);
+
+const totalProfit = totalSAR - totalWithoutProfit;
+const profitPerPerson = totalProfit / totalPeople;
+const netPerPersonSAR = totalWithoutProfit / totalPeople;
+
+wsData.push(["Toplam Kâr", totalProfit.toFixed(2)]);
+wsData.push(["Kişi Başı Net Maliyet (Kâr Hariç)", netPerPersonSAR.toFixed(2)]);
+wsData.push(["Kişi Başı Kâr", profitPerPerson.toFixed(2)]);
 
     const ws = XLSX.utils.aoa_to_sheet(wsData);
     XLSX.utils.book_append_sheet(wb, ws, "Rapor");
