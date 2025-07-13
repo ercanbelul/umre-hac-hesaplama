@@ -1738,6 +1738,24 @@
 <script>
 <script>
 function exportDetailedToExcel() {
+    const dblCount = parseInt(document.getElementById("dblCount").value) || 0;
+const dblPrice = parseFloat(document.getElementById("dblPrice").value) || 0;
+const trplCount = parseInt(document.getElementById("trplCount").value) || 0;
+const trplPrice = parseFloat(document.getElementById("trplPrice").value) || 0;
+const qrdCount = parseInt(document.getElementById("qrdCount").value) || 0;
+const qrdPrice = parseFloat(document.getElementById("qrdPrice").value) || 0;
+
+const mealPrice = parseFloat(document.getElementById("mealPrice").value) || 0;
+const visaPrice = parseFloat(document.getElementById("visaCost").value) || 0;
+const busPrice = parseFloat(document.getElementById("busTotalCost").value) || 0;
+const flightPrice = parseFloat(document.getElementById("flightCost").value) || 0;
+
+const totalPeople = dblCount + trplCount + qrdCount;
+const totalWithoutProfit =
+    (dblCount * dblPrice) +
+    (trplCount * trplPrice) +
+    (qrdCount * qrdPrice) +
+    mealPrice + visaPrice + busPrice + flightPrice;
     const wb = XLSX.utils.book_new();
     const wsData = [
         ["🧾 UMRE MALİYET RAPORU"],
