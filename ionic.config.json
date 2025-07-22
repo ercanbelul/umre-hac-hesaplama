@@ -1,0 +1,7 @@
+{
+  "name": "umreHesaplayici",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "custom"
+}
