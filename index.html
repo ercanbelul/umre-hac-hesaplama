@@ -4,37 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Umre & Hac Maliyet Hesaplayıcı</title>
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    
+    <script src="capacitor.js"></script>
     <style>
-        body { background-color: #f8f9fa; font-family: 'Inter', sans-serif; }
-        .container { max-width: 900px; background-color: #fff; padding: 2rem; border-radius: 0.5rem; box-shadow: 0 4px_8px rgba(0,0,0,0.05); }
-        h1, h2, h3, h4, h5 { color: #003d73; font-weight: 600; }
-        h2 { border-bottom: 2px solid #dee2e6; padding-bottom: 0.5rem; margin-bottom: 1.5rem; font-size: 1.5rem; }
-        .form-label { font-weight: 500; }
-        #teklifCiktisi { border: 1px solid #dee2e6; padding: 2rem; margin-top: 2rem; border-radius: 0.5rem; background-color: #ffffff;}
-        .preserve-whitespace { white-space: pre-wrap; }
-        #logoPreview { max-height: 60px; margin-top: 10px; border-radius: 0.25rem; border: 1px solid #dee2e6; }
-        .signature { text-align: center; padding: 25px 0 15px 0; color: #b0b0b0; font-size: 0.85em; font-style: italic; }
-        .lang-btn { font-weight: 500; }
-        .lang-btn.active { font-weight: 700; text-decoration: underline; pointer-events: none; }
+        body { background-color: #f8f9fa; font-family: 'Inter', sans-serif; } .container { max-width: 900px; background-color: #fff; padding: 2rem; border-radius: 0.5rem; box-shadow: 0 4px_8px rgba(0,0,0,0.05); } h1, h2, h3, h4, h5 { color: #003d73; font-weight: 600; } h2 { border-bottom: 2px solid #dee2e6; padding-bottom: 0.5rem; margin-bottom: 1.5rem; font-size: 1.5rem; } .form-label { font-weight: 500; } #teklifCiktisi { border: 1px solid #dee2e6; padding: 2rem; margin-top: 2rem; border-radius: 0.5rem; background-color: #ffffff;} .preserve-whitespace { white-space: pre-wrap; } #logoPreview { max-height: 60px; margin-top: 10px; border-radius: 0.25rem; border: 1px solid #dee2e6; } .signature { text-align: center; padding: 25px 0 15px 0; color: #b0b0b0; font-size: 0.85em; font-style: italic; } .lang-btn { font-weight: 500; } .lang-btn.active { font-weight: 700; text-decoration: underline; pointer-events: none; }
     </style>
 </head>
 <body>
-
 <div class="container my-5">
     <div class="text-end mb-3">
         <button id="lang-tr" class="btn btn-link lang-btn" onclick="setLanguage('tr')">Türkçe</button>
         <span>|</span>
         <button id="lang-en" class="btn btn-link lang-btn" onclick="setLanguage('en')">English</button>
     </div>
-
     <div class="text-center mb-5">
         <h1 data-lang-key="mainTitle">Umre & Hac Maliyet Hesaplayıcı</h1>
         <p class="text-muted" data-lang-key="mainSubtitle">Fiyat teklifinizi kolayca oluşturun, PDF veya Excel olarak indirin.</p>
@@ -42,30 +28,19 @@
     <section>
         <h2 data-lang-key="generalInfoTitle"><i class="bi bi-info-circle-fill"></i> Genel Bilgiler</h2>
         <div class="row">
-            <div class="col-md-6 mb-3"><label for="firmaAdi" class="form-label" data-lang-key="companyNameLabel">Firma Adı</label><input type="text" class="form-control" id="firmaAdi" data-lang-placeholder="companyNamePlaceholder"></div>
-            <div class="col-md-6 mb-3"><label for="grupLideri" class="form-label" data-lang-key="groupLeaderLabel">Grup Lideri Adı</label><input type="text" class="form-control" id="grupLideri" data-lang-placeholder="groupLeaderPlaceholder"></div>
-            <div class="col-md-6 mb-3"><label for="grupKisiSayisi" class="form-label" data-lang-key="groupSizeLabel">Grup Kişi Sayısı</label><input type="number" class="form-control" id="grupKisiSayisi" data-lang-placeholder="groupSizePlaceholder"></div>
-            <div class="col-md-3 mb-3"><label for="talepTarihi" class="form-label" data-lang-key="offerStartDateLabel">Teklif Başlangıç Tarihi</label><input type="date" class="form-control" id="talepTarihi"></div>
-            <div class="col-md-3 mb-3"><label for="talepBitisTarihi" class="form-label" data-lang-key="offerEndDateLabel">Teklif Bitiş Tarihi</label><input type="date" class="form-control" id="talepBitisTarihi"></div>
-            <div class="col-md-12 mb-3"><label for="logoUpload" class="form-label" data-lang-key="logoUploadLabel">Firma Logosu Yükle (PDF için)</label><input class="form-control" type="file" id="logoUpload" accept="image/*"><div class="text-center"><img id="logoPreview" src="" alt="Logo Preview" style="display:none;"/></div></div>
+            <div class="col-md-6 mb-3"><label for="firmaAdi" class="form-label" data-lang-key="companyNameLabel">Firma Adı</label><input type="text" class="form-control" id="firmaAdi" data-lang-placeholder="companyNamePlaceholder"></div><div class="col-md-6 mb-3"><label for="grupLideri" class="form-label" data-lang-key="groupLeaderLabel">Grup Lideri Adı</label><input type="text" class="form-control" id="grupLideri" data-lang-placeholder="groupLeaderPlaceholder"></div><div class="col-md-6 mb-3"><label for="grupKisiSayisi" class="form-label" data-lang-key="groupSizeLabel">Grup Kişi Sayısı</label><input type="number" class="form-control" id="grupKisiSayisi" data-lang-placeholder="groupSizePlaceholder"></div><div class="col-md-3 mb-3"><label for="talepTarihi" class="form-label" data-lang-key="offerStartDateLabel">Teklif Başlangıç Tarihi</label><input type="date" class="form-control" id="talepTarihi"></div><div class="col-md-3 mb-3"><label for="talepBitisTarihi" class="form-label" data-lang-key="offerEndDateLabel">Teklif Bitiş Tarihi</label><input type="date" class="form-control" id="talepBitisTarihi"></div><div class="col-md-12 mb-3"><label for="logoUpload" class="form-label" data-lang-key="logoUploadLabel">Firma Logosu Yükle (PDF için)</label><input class="form-control" type="file" id="logoUpload" accept="image/*"><div class="text-center"><img id="logoPreview" src="" alt="Logo Preview" style="display:none;"/></div></div>
         </div>
     </section>
     <section class="mt-4">
         <h2 data-lang-key="medinaHotelTitle"><i class="bi bi-moon-stars-fill"></i> Medine Otel Bilgileri</h2>
         <div class="row">
-            <div class="col-md-12 mb-3"><label for="medineOtelAdi" class="form-label" data-lang-key="hotelNameLabel">Otel Adı</label><input type="text" class="form-control" id="medineOtelAdi" data-lang-placeholder="medinaHotelPlaceholder"></div>
-            <div class="col-md-4 mb-3"><label for="medineGiris" class="form-label" data-lang-key="checkinDateLabel">Giriş Tarihi</label><input type="date" class="form-control" id="medineGiris" onchange="calculateNights()"></div>
-            <div class="col-md-4 mb-3"><label for="medineCikis" class="form-label" data-lang-key="checkoutDateLabel">Çıkış Tarihi</label><input type="date" class="form-control" id="medineCikis" onchange="calculateNights()"></div>
-            <div class="col-md-4 mb-3"><label for="medineGece" class="form-label" data-lang-key="nightsCountLabel">Gece Sayısı</label><input type="text" class="form-control" id="medineGece" readonly></div>
+            <div class="col-md-12 mb-3"><label for="medineOtelAdi" class="form-label" data-lang-key="hotelNameLabel">Otel Adı</label><input type="text" class="form-control" id="medineOtelAdi" data-lang-placeholder="medinaHotelPlaceholder"></div><div class="col-md-4 mb-3"><label for="medineGiris" class="form-label" data-lang-key="checkinDateLabel">Giriş Tarihi</label><input type="date" class="form-control" id="medineGiris" onchange="calculateNights()"></div><div class="col-md-4 mb-3"><label for="medineCikis" class="form-label" data-lang-key="checkoutDateLabel">Çıkış Tarihi</label><input type="date" class="form-control" id="medineCikis" onchange="calculateNights()"></div><div class="col-md-4 mb-3"><label for="medineGece" class="form-label" data-lang-key="nightsCountLabel">Gece Sayısı</label><input type="text" class="form-control" id="medineGece" readonly></div>
         </div><div id="medineInputs"></div>
     </section>
     <section class="mt-4">
         <h2 data-lang-key="meccaHotelTitle"><i class="bi bi-house-heart-fill"></i> Mekke Otel Bilgileri</h2>
         <div class="row">
-            <div class="col-md-12 mb-3"><label for="mekkeOtelAdi" class="form-label" data-lang-key="hotelNameLabel">Otel Adı</label><input type="text" class="form-control" id="mekkeOtelAdi" data-lang-placeholder="meccaHotelPlaceholder"></div>
-            <div class="col-md-4 mb-3"><label for="mekkeGiris" class="form-label" data-lang-key="checkinDateLabel">Giriş Tarihi</label><input type="date" class="form-control" id="mekkeGiris" onchange="calculateNights()"></div>
-            <div class="col-md-4 mb-3"><label for="mekkeCikis" class="form-label" data-lang-key="checkoutDateLabel">Çıkış Tarihi</label><input type="date" class="form-control" id="mekkeCikis" onchange="calculateNights()"></div>
-            <div class="col-md-4 mb-3"><label for="mekkeGece" class="form-label" data-lang-key="nightsCountLabel">Gece Sayısı</label><input type="text" class="form-control" id="mekkeGece" readonly></div>
+            <div class="col-md-12 mb-3"><label for="mekkeOtelAdi" class="form-label" data-lang-key="hotelNameLabel">Otel Adı</label><input type="text" class="form-control" id="mekkeOtelAdi" data-lang-placeholder="meccaHotelPlaceholder"></div><div class="col-md-4 mb-3"><label for="mekkeGiris" class="form-label" data-lang-key="checkinDateLabel">Giriş Tarihi</label><input type="date" class="form-control" id="mekkeGiris" onchange="calculateNights()"></div><div class="col-md-4 mb-3"><label for="mekkeCikis" class="form-label" data-lang-key="checkoutDateLabel">Çıkış Tarihi</label><input type="date" class="form-control" id="mekkeCikis" onchange="calculateNights()"></div><div class="col-md-4 mb-3"><label for="mekkeGece" class="form-label" data-lang-key="nightsCountLabel">Gece Sayısı</label><input type="text" class="form-control" id="mekkeGece" readonly></div>
         </div><div id="mekkeInputs"></div>
     </section>
     <section class="mt-4">
@@ -96,7 +71,6 @@
 </div>
 <footer class="signature">by - Ercan Belul</footer>
 <script>
-// DİL ÇEVİRİ OBJESİ
 const translations = {
     tr: {
         pageTitle: "Umre & Hac Maliyet Hesaplayıcı", mainTitle: "Umre & Hac Maliyet Hesaplayıcı", mainSubtitle: "Fiyat teklifinizi kolayca oluşturun, PDF veya Excel olarak indirin.",
@@ -108,7 +82,6 @@ const translations = {
         profitMarginTitle: "Kar Marjı Ayarları (Raporda Gizli)", percentageProfitLabel: "Yüzdesel Kar Ekle", fixedProfitLabel: "Kişi Başı Sabit Kar Ekle",
         createOfferBtn: '<i class="bi bi-calculator-fill"></i> Teklif Oluştur', downloadPdfBtn: '<i class="bi bi-file-earmark-pdf-fill"></i> PDF Olarak İndir', downloadXlsxBtn: '<i class="bi bi-file-earmark-excel-fill"></i> Excel Olarak İndir',
         calculatingBtn: '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Hesaplama Yapılıyor...', recreateOfferBtn: '<i class="bi bi-calculator-fill"></i> Tekrar Teklif Oluştur',
-        // Rapor Metinleri
         proposalTitle: "FİYAT TEKLİFİ", reportCompanyName: "Firma Adı:", reportGroupLeader: "Grup Lideri:", reportGroupSize: "Grup Kişi Sayısı:", reportValidity: "Geçerlilik Tarihi:",
         packageDetailsTitle: "Paket Detayları", packageNameLabel: "Paket Adı:", medinaLabel: "Medine:", meccaLabel: "Mekke:", transportLabel: "Ulaşım:",
         package_name_template: "{nights} Gece {days} Gün Umre Programı", not_specified: "Belirtilmedi",
@@ -126,7 +99,6 @@ const translations = {
         profitMarginTitle: "Profit Margin Settings (Hidden in Report)", percentageProfitLabel: "Add Percentage Profit", fixedProfitLabel: "Add Fixed Profit Per Person",
         createOfferBtn: '<i class="bi bi-calculator-fill"></i> Create Offer', downloadPdfBtn: '<i class="bi bi-file-earmark-pdf-fill"></i> Download as PDF', downloadXlsxBtn: '<i class="bi bi-file-earmark-excel-fill"></i> Download as Excel',
         calculatingBtn: '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Calculating...', recreateOfferBtn: '<i class="bi bi-calculator-fill"></i> Recreate Offer',
-        // Report Texts
         proposalTitle: "PRICE QUOTATION", reportCompanyName: "Company Name:", reportGroupLeader: "Group Leader:", reportGroupSize: "Group Size:", reportValidity: "Validity Date:",
         packageDetailsTitle: "Package Details", packageNameLabel: "Package Name:", medinaLabel: "Medina:", meccaLabel: "Mecca:", transportLabel: "Transportation:",
         package_name_template: "{nights} Nights {days} Days Umrah Program", not_specified: "Not specified",
@@ -137,38 +109,25 @@ const translations = {
 };
 let currentLanguage = 'tr';
 let uploadedLogoDataUrl = null;
-
-// DİL DEĞİŞTİRME FONKSİYONU
 function setLanguage(lang) {
     currentLanguage = lang;
     const langDict = translations[lang];
-    
     document.documentElement.lang = lang;
     document.title = langDict.pageTitle;
-
     document.querySelectorAll('[data-lang-key]').forEach(el => {
         const key = el.dataset.langKey;
         if (langDict[key]) el.innerHTML = langDict[key];
     });
-
     document.querySelectorAll('[data-lang-placeholder]').forEach(el => {
         const key = el.dataset.langPlaceholder;
         if (langDict[key]) el.placeholder = langDict[key];
     });
-
-    // Butonları güncelle
     document.getElementById('lang-tr').classList.toggle('active', lang === 'tr');
     document.getElementById('lang-en').classList.toggle('active', lang === 'en');
-    
-    // Dinamik olarak oluşturulan inputların etiketlerini yeniden oluştur
     recreateDynamicInputs();
-
-    // Notlar alanını güncelle
     const startDate = document.getElementById('talepTarihi').value ? new Date(document.getElementById('talepTarihi').value).toLocaleDateString(lang === 'tr' ? 'tr-TR' : 'en-GB') : '...';
     const endDate = document.getElementById('talepBitisTarihi').value ? new Date(document.getElementById('talepBitisTarihi').value).toLocaleDateString(lang === 'tr' ? 'tr-TR' : 'en-GB') : '...';
     document.getElementById('dahilHizmetlerNotu').value = langDict.defaultNotes.replace('{startDate}', startDate).replace('{endDate}', endDate);
-
-    // Eğer teklif zaten oluşturulmuşsa, temizle ve kullanıcıyı uyar
     const outputDiv = document.getElementById('teklifCiktisi');
     if (outputDiv.style.display === 'block') {
         outputDiv.style.display = 'none';
@@ -210,7 +169,6 @@ async function createProposal(){
     const logoHtml=uploadedLogoDataUrl?`<img src="${uploadedLogoDataUrl}" alt="Company Logo" style="max-height: 80px; max-width: 200px;">`:'';
     const teklifHTML=`<div class="d-flex justify-content-between align-items-start mb-4"><div><h3 class="mb-4 text-primary">${langDict.proposalTitle}</h3><p class="mb-1"><strong>${langDict.reportCompanyName}</strong> ${proposalData.firmaAdi}</p><p><strong>${langDict.reportGroupLeader}</strong> ${proposalData.grupLideri}</p></div><div>${logoHtml}</div></div><div class="row mb-4"><div class="col-md-6"><p><strong>${langDict.reportGroupSize}</strong> ${proposalData.grupKisiSayisi}</p></div><div class="col-md-6 text-md-end"><p><strong>${langDict.reportValidity}</strong> ${proposalData.talepTarihi} - ${proposalData.talepBitisTarihi}</p></div></div><h4>${langDict.packageDetailsTitle}</h4><ul class="list-group list-group-flush mb-4"><li class="list-group-item"><strong>${langDict.packageNameLabel}</strong> ${proposalData.paketAdi}</li><li class="list-group-item"><strong>${langDict.medinaLabel}</strong> ${proposalData.medineOtel} (${proposalData.medineGece})</li><li class="list-group-item"><strong>${langDict.meccaLabel}</strong> ${proposalData.mekkeOtel} (${proposalData.mekkeGece})</li><li class="list-group-item"><strong>${langDict.transportLabel}</strong> ${proposalData.transportLabel} (${vehicleCount} adet)</li></ul><h4 class="mt-4">${langDict.pricesTitle}</h4><table class="table table-bordered table-striped text-center"><thead class="table-primary"><tr><th>${langDict.roomTypeHeader}</th><th>SAR (Riyal)</th><th>USD (Dolar)</th><th>EUR (Euro)</th></tr></thead><tbody><tr><td><strong>${langDict.dblPriceLabel}</strong></td><td>${formatters.SAR.format(totalsSar.dbl)}</td><td>${formatters.USD.format(totalsSar.dbl*rates.USD_PER_SAR)}</td><td>${formatters.EUR.format(totalsSar.dbl*rates.EUR_PER_SAR)}</td></tr><tr><td><strong>${langDict.trplPriceLabel}</strong></td><td>${formatters.SAR.format(totalsSar.trpl)}</td><td>${formatters.USD.format(totalsSar.trpl*rates.USD_PER_SAR)}</td><td>${formatters.EUR.format(totalsSar.trpl*rates.EUR_PER_SAR)}</td></tr><tr><td><strong>${langDict.quadPriceLabel}</strong></td><td>${formatters.SAR.format(totalsSar.quad)}</td><td>${formatters.USD.format(totalsSar.quad*rates.USD_PER_SAR)}</td><td>${formatters.EUR.format(totalsSar.quad*rates.EUR_PER_SAR)}</td></tr></tbody></table>${proposalData.dahilHizmetler?`<h5 class="mt-4">${langDict.includedServicesTitle}</h5><div class="text-muted small preserve-whitespace">${proposalData.dahilHizmetler}</div>`:''}<div class="text-muted small mt-4"><p>${langDict.currencyNote.replace('{date}', currentDate)}</p></div>`;
     const outputDiv=document.getElementById('teklifCiktisi');outputDiv.innerHTML=teklifHTML;outputDiv.style.display='block';document.getElementById('exportButtons').style.display='block';outputDiv.scrollIntoView({behavior:'smooth'});document.getElementById('exportPdfBtn').onclick=()=>exportToPdf(proposalData.grupLideri);document.getElementById('exportXlsxBtn').onclick=()=>exportToXlsx(proposalData,totalsSar,rates,vehicleCount);calculateBtn.disabled=false;btnText.innerHTML=langDict.recreateOfferBtn}
-    
     function exportToPdf(grupLideriAdi) {
         const langDict = translations[currentLanguage];
         const reportElement = document.getElementById('teklifCiktisi');
@@ -225,7 +183,6 @@ async function createProposal(){
             pdf.save(safeFileName); 
         });
     }
-
     function exportToXlsx(data, totals, rates, vehicleCount) {
         const langDict = translations[currentLanguage];
         const currentDate = new Date().toLocaleDateString(currentLanguage === 'tr' ? 'tr-TR' : 'en-GB');
