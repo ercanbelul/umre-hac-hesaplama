@@ -3,9 +3,11 @@
     "@capacitor/android": "7.4.2",
     "@capacitor/app": "7.0.1",
     "@capacitor/core": "7.4.2",
+    "@capacitor/filesystem": "^7.1.2",
     "@capacitor/haptics": "7.0.1",
     "@capacitor/keyboard": "7.0.1",
-    "@capacitor/status-bar": "7.0.1"
+    "@capacitor/status-bar": "7.0.1",
+    "@capacitor/toast": "^7.0.1"
   },
   "devDependencies": {
     "@capacitor/cli": "7.4.2",
