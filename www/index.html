@@ -75,6 +75,7 @@
 // CAPACITOR EKLENTİLERİNİ TANIMLAMA
 const { Filesystem, Directory } = Capacitor.Plugins;
 const { Toast } = Capacitor.Plugins;
+const { AndroidPermissions } = Capacitor.Plugins;
 
 // DİL ÇEVİRİ OBJESİ
 const translations = {
@@ -176,8 +177,49 @@ async function createProposal(){
     const teklifHTML=`<div class="d-flex justify-content-between align-items-start mb-4"><div><h3 class="mb-4 text-primary">${langDict.proposalTitle}</h3><p class="mb-1"><strong>${langDict.reportCompanyName}</strong> ${proposalData.firmaAdi}</p><p><strong>${langDict.reportGroupLeader}</strong> ${proposalData.grupLideri}</p></div><div>${logoHtml}</div></div><div class="row mb-4"><div class="col-md-6"><p><strong>${langDict.reportGroupSize}</strong> ${proposalData.grupKisiSayisi}</p></div><div class="col-md-6 text-md-end"><p><strong>${langDict.reportValidity}</strong> ${proposalData.talepTarihi} - ${proposalData.talepBitisTarihi}</p></div></div><h4>${langDict.packageDetailsTitle}</h4><ul class="list-group list-group-flush mb-4"><li class="list-group-item"><strong>${langDict.packageNameLabel}</strong> ${proposalData.paketAdi}</li><li class="list-group-item"><strong>${langDict.medinaLabel}</strong> ${proposalData.medineOtel} (${proposalData.medineGece})</li><li class="list-group-item"><strong>${langDict.meccaLabel}</strong> ${proposalData.mekkeOtel} (${proposalData.mekkeGece})</li><li class="list-group-item"><strong>${langDict.transportLabel}</strong> ${proposalData.transportLabel} (${vehicleCount} adet)</li></ul><h4 class="mt-4">${langDict.pricesTitle}</h4><table class="table table-bordered table-striped text-center"><thead class="table-primary"><tr><th>${langDict.roomTypeHeader}</th><th>SAR (Riyal)</th><th>USD (Dolar)</th><th>EUR (Euro)</th></tr></thead><tbody><tr><td><strong>${langDict.dblPriceLabel}</strong></td><td>${formatters.SAR.format(totalsSar.dbl)}</td><td>${formatters.USD.format(totalsSar.dbl*rates.USD_PER_SAR)}</td><td>${formatters.EUR.format(totalsSar.dbl*rates.EUR_PER_SAR)}</td></tr><tr><td><strong>${langDict.trplPriceLabel}</strong></td><td>${formatters.SAR.format(totalsSar.trpl)}</td><td>${formatters.USD.format(totalsSar.trpl*rates.USD_PER_SAR)}</td><td>${formatters.EUR.format(totalsSar.trpl*rates.EUR_PER_SAR)}</td></tr><tr><td><strong>${langDict.quadPriceLabel}</strong></td><td>${formatters.SAR.format(totalsSar.quad)}</td><td>${formatters.USD.format(totalsSar.quad*rates.USD_PER_SAR)}</td><td>${formatters.EUR.format(totalsSar.quad*rates.EUR_PER_SAR)}</td></tr></tbody></table>${proposalData.dahilHizmetler?`<h5 class="mt-4">${langDict.includedServicesTitle}</h5><div class="text-muted small preserve-whitespace">${proposalData.dahilHizmetler}</div>`:''}<div class="text-muted small mt-4"><p>${langDict.currencyNote.replace('{date}', currentDate)}</p></div>`;
     const outputDiv=document.getElementById('teklifCiktisi');outputDiv.innerHTML=teklifHTML;outputDiv.style.display='block';document.getElementById('exportButtons').style.display='block';outputDiv.scrollIntoView({behavior:'smooth'});document.getElementById('exportPdfBtn').onclick=()=>exportToPdf(proposalData.grupLideri);document.getElementById('exportXlsxBtn').onclick=()=>exportToXlsx(proposalData,totalsSar,rates,vehicleCount);calculateBtn.disabled=false;btnText.innerHTML=langDict.recreateOfferBtn}
     
+    // YENİ İZİN İSTEME FONKSİYONU
+    async function checkAndRequestPermissions() {
+        try {
+            // AndroidPermissions eklentisi sadece Capacitor ile çalışır, web'de değil.
+            // Bu nedenle, eklentinin var olup olmadığını kontrol ediyoruz.
+            const { AndroidPermissions } = Capacitor.Plugins;
+            if(!AndroidPermissions) {
+                // Eğer web'de çalışıyorsak veya eklenti yoksa, izin verilmiş varsayalım.
+                // Web'de dosya indirme zaten tarayıcı tarafından yönetilir.
+                return true; 
+            }
+
+            // Android için özel izin kontrolü
+            let permStatus = await AndroidPermissions.checkPermissions({
+                permission: 'android.permission.WRITE_EXTERNAL_STORAGE'
+            });
+
+            if (permStatus.results[0] !== 'granted') {
+                // İzin verilmemişse, kullanıcıdan isteyelim
+                let requestResult = await AndroidPermissions.requestPermissions({
+                    permissions: ['android.permission.WRITE_EXTERNAL_STORAGE']
+                });
+                // Kullanıcının cevabına göre true veya false döndürelim
+                return requestResult.results[0] === 'granted';
+            }
+            
+            // İzin zaten verilmiş
+            return true;
+        } catch (e) {
+            console.error("İzin kontrol hatası", e);
+            await Toast.show({ text: 'İzin kontrol edilemedi.' });
+            return false;
+        }
+    }
+
     // GÜNCELLENMİŞ FONKSİYONLAR
     async function exportToPdf(grupLideriAdi) {
+        const hasPermission = await checkAndRequestPermissions();
+        if (!hasPermission) {
+            await Toast.show({ text: 'Dosya yazma izni gerekli.' });
+            return;
+        }
+
         const langDict = translations[currentLanguage];
         const reportElement = document.getElementById('teklifCiktisi');
         const safeFileName = (grupLideriAdi || langDict.offerFileName).replace(/ /g, '_') + '.pdf';
@@ -196,11 +238,11 @@ async function createProposal(){
             await Filesystem.writeFile({
                 path: safeFileName,
                 data: pdfBase64,
-                directory: Directory.Downloads
+                directory: Directory.Documents
             });
             
             await Toast.show({
-                text: `${safeFileName} indirildi!`,
+                text: `${safeFileName} Belgeler klasörüne indirildi!`,
             });
 
         } catch (e) {
@@ -210,6 +252,12 @@ async function createProposal(){
     }
 
     async function exportToXlsx(data, totals, rates, vehicleCount) {
+        const hasPermission = await checkAndRequestPermissions();
+        if (!hasPermission) {
+            await Toast.show({ text: 'Dosya yazma izni gerekli.' });
+            return;
+        }
+
         const langDict = translations[currentLanguage];
         const currentDate = new Date().toLocaleDateString(currentLanguage === 'tr' ? 'tr-TR' : 'en-GB');
         const safeFileName = (data.grupLideri || langDict.offerFileName).replace(/ /g, '_') + '.xlsx';
@@ -247,11 +295,11 @@ async function createProposal(){
             await Filesystem.writeFile({
                 path: safeFileName,
                 data: xlsxBase64,
-                directory: Directory.Downloads
+                directory: Directory.Documents
             });
 
             await Toast.show({
-                text: `${safeFileName} indirildi!`,
+                text: `${safeFileName} Belgeler klasörüne indirildi!`,
             });
 
         } catch(e) {
