@@ -1,4 +1,4 @@
-package io.ionic.starter;
+package com.ercanbelul.umrehesaplayici;
 
 import com.getcapacitor.BridgeActivity;
 
