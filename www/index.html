@@ -70,7 +70,14 @@
     </div>
 </div>
 <footer class="signature">by - Ercan Belul</footer>
+
 <script>
+// CAPACITOR EKLENTİLERİNİ TANIMLAMA
+const { Filesystem, Directory } = Capacitor.Plugins;
+const { Toast } = Capacitor.Plugins;
+const { AndroidPermissions } = Capacitor.Plugins;
+
+// DİL ÇEVİRİ OBJESİ
 const translations = {
     tr: {
         pageTitle: "Umre & Hac Maliyet Hesaplayıcı", mainTitle: "Umre & Hac Maliyet Hesaplayıcı", mainSubtitle: "Fiyat teklifinizi kolayca oluşturun, PDF veya Excel olarak indirin.",
@@ -169,23 +176,45 @@ async function createProposal(){
     const logoHtml=uploadedLogoDataUrl?`<img src="${uploadedLogoDataUrl}" alt="Company Logo" style="max-height: 80px; max-width: 200px;">`:'';
     const teklifHTML=`<div class="d-flex justify-content-between align-items-start mb-4"><div><h3 class="mb-4 text-primary">${langDict.proposalTitle}</h3><p class="mb-1"><strong>${langDict.reportCompanyName}</strong> ${proposalData.firmaAdi}</p><p><strong>${langDict.reportGroupLeader}</strong> ${proposalData.grupLideri}</p></div><div>${logoHtml}</div></div><div class="row mb-4"><div class="col-md-6"><p><strong>${langDict.reportGroupSize}</strong> ${proposalData.grupKisiSayisi}</p></div><div class="col-md-6 text-md-end"><p><strong>${langDict.reportValidity}</strong> ${proposalData.talepTarihi} - ${proposalData.talepBitisTarihi}</p></div></div><h4>${langDict.packageDetailsTitle}</h4><ul class="list-group list-group-flush mb-4"><li class="list-group-item"><strong>${langDict.packageNameLabel}</strong> ${proposalData.paketAdi}</li><li class="list-group-item"><strong>${langDict.medinaLabel}</strong> ${proposalData.medineOtel} (${proposalData.medineGece})</li><li class="list-group-item"><strong>${langDict.meccaLabel}</strong> ${proposalData.mekkeOtel} (${proposalData.mekkeGece})</li><li class="list-group-item"><strong>${langDict.transportLabel}</strong> ${proposalData.transportLabel} (${vehicleCount} adet)</li></ul><h4 class="mt-4">${langDict.pricesTitle}</h4><table class="table table-bordered table-striped text-center"><thead class="table-primary"><tr><th>${langDict.roomTypeHeader}</th><th>SAR (Riyal)</th><th>USD (Dolar)</th><th>EUR (Euro)</th></tr></thead><tbody><tr><td><strong>${langDict.dblPriceLabel}</strong></td><td>${formatters.SAR.format(totalsSar.dbl)}</td><td>${formatters.USD.format(totalsSar.dbl*rates.USD_PER_SAR)}</td><td>${formatters.EUR.format(totalsSar.dbl*rates.EUR_PER_SAR)}</td></tr><tr><td><strong>${langDict.trplPriceLabel}</strong></td><td>${formatters.SAR.format(totalsSar.trpl)}</td><td>${formatters.USD.format(totalsSar.trpl*rates.USD_PER_SAR)}</td><td>${formatters.EUR.format(totalsSar.trpl*rates.EUR_PER_SAR)}</td></tr><tr><td><strong>${langDict.quadPriceLabel}</strong></td><td>${formatters.SAR.format(totalsSar.quad)}</td><td>${formatters.USD.format(totalsSar.quad*rates.USD_PER_SAR)}</td><td>${formatters.EUR.format(totalsSar.quad*rates.EUR_PER_SAR)}</td></tr></tbody></table>${proposalData.dahilHizmetler?`<h5 class="mt-4">${langDict.includedServicesTitle}</h5><div class="text-muted small preserve-whitespace">${proposalData.dahilHizmetler}</div>`:''}<div class="text-muted small mt-4"><p>${langDict.currencyNote.replace('{date}', currentDate)}</p></div>`;
     const outputDiv=document.getElementById('teklifCiktisi');outputDiv.innerHTML=teklifHTML;outputDiv.style.display='block';document.getElementById('exportButtons').style.display='block';outputDiv.scrollIntoView({behavior:'smooth'});document.getElementById('exportPdfBtn').onclick=()=>exportToPdf(proposalData.grupLideri);document.getElementById('exportXlsxBtn').onclick=()=>exportToXlsx(proposalData,totalsSar,rates,vehicleCount);calculateBtn.disabled=false;btnText.innerHTML=langDict.recreateOfferBtn}
-    function exportToPdf(grupLideriAdi) {
+    
+    // GÜNCELLENMİŞ FONKSİYONLAR (İZİN İSTEME KALDIRILDI)
+    async function exportToPdf(grupLideriAdi) {
         const langDict = translations[currentLanguage];
         const reportElement = document.getElementById('teklifCiktisi');
         const safeFileName = (grupLideriAdi || langDict.offerFileName).replace(/ /g, '_') + '.pdf';
-        html2canvas(reportElement, { scale: 2 }).then(canvas => {
+        
+        try {
+            const canvas = await html2canvas(reportElement, { scale: 2 });
             const imgData = canvas.toDataURL('image/png');
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF('p', 'mm', 'a4');
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const pdfHeight = (canvas.height * pdfWidth) / canvas.width; 
             pdf.addImage(imgData, 'PNG', 10, 10, pdfWidth - 20, pdfHeight);
-            pdf.save(safeFileName); 
-        });
+            
+            const pdfBase64 = pdf.output('datauristring').split(',')[1];
+            
+            await Filesystem.writeFile({
+                path: safeFileName,
+                data: pdfBase64,
+                directory: Directory.Documents
+            });
+            
+            await Toast.show({
+                text: `${safeFileName} Belgeler klasörüne indirildi!`,
+            });
+
+        } catch (e) {
+            console.error('Dosya kaydetme hatası', e);
+            await Toast.show({ text: 'PDF kaydedilemedi.' });
+        }
     }
-    function exportToXlsx(data, totals, rates, vehicleCount) {
+
+    async function exportToXlsx(data, totals, rates, vehicleCount) {
         const langDict = translations[currentLanguage];
         const currentDate = new Date().toLocaleDateString(currentLanguage === 'tr' ? 'tr-TR' : 'en-GB');
+        const safeFileName = (data.grupLideri || langDict.offerFileName).replace(/ /g, '_') + '.xlsx';
+
         const ws_data = [
             [langDict.proposalTitle], [],
             [langDict.reportCompanyName, data.firmaAdi],
@@ -207,22 +236,29 @@ async function createProposal(){
             ws_data.push([langDict.includedServicesTitle+":"], [data.dahilHizmetler], []);
         }
         ws_data.push([langDict.currencyNote.replace('{date}', currentDate)]);
+
         const ws = XLSX.utils.aoa_to_sheet(ws_data);
-        const priceRowStart = 14; 
         ws['!cols'] = [{ wch: 35 }, { wch: 15 }, { wch: 15 }, { wch: 15 }];
-        for (let i = 0; i < 3; i++) {
-            ['B', 'C', 'D'].forEach(col => {
-                const cellRef = `${col}${priceRowStart + i}`;
-                if (ws[cellRef]) {
-                    ws[cellRef].t = 'n';
-                    ws[cellRef].z = '#,##0.00';
-                }
-            });
-        }
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, langDict.proposalTitle);
-        const safeFileName = (data.grupLideri || langDict.offerFileName).replace(/ /g, '_') + '.xlsx';
-        XLSX.writeFile(wb, safeFileName);
+        
+        try {
+            const xlsxBase64 = XLSX.write(wb, { bookType: 'xlsx', type: 'base64' });
+
+            await Filesystem.writeFile({
+                path: safeFileName,
+                data: xlsxBase64,
+                directory: Directory.Documents
+            });
+
+            await Toast.show({
+                text: `${safeFileName} Belgeler klasörüne indirildi!`,
+            });
+
+        } catch(e) {
+            console.error('Dosya kaydetme hatası', e);
+            await Toast.show({ text: 'Excel kaydedilemedi.' });
+        }
     }
 </script>
 </body>
